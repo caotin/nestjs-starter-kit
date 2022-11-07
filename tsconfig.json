@@ -20,9 +20,9 @@
     "rootDir": "./",
     "paths": {
       "@/*": ["./src/*"],
-      "@exceptions/*": ["./src/exceptions/*"],
-      "@environments": ["./src/environments"],
-      "@constants/*": ["./src/constants/*"]
+      "@exceptions/*": ["./src/common/exceptions/*"],
+      "@environments": ["./src/common/environments"],
+      "@constants/*": ["./src/common/constants/*"]
     }
   }
 }
