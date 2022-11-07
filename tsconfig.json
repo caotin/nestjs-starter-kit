@@ -17,8 +17,12 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
+    "rootDir": "./",
     "paths": {
-      "@/*": ["./src/*"]
-    },
+      "@/*": ["./src/*"],
+      "@exceptions/*": ["./src/exceptions/*"],
+      "@environments": ["./src/environments"],
+      "@constants/*": ["./src/constants/*"]
+    }
   }
 }

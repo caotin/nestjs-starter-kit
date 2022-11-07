@@ -1,13 +1,15 @@
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
-import { APP_PORT } from '@/environments';
-// import { ValidationPipe } from '@nestjs/common';
+import { APP_PORT } from '@environments';
+import { ValidationPipe } from '@nestjs/common';
+import { HttpExceptionFilter } from '@exceptions/exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api');
-  // app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
+  app.useGlobalFilters(new HttpExceptionFilter());
 
   const config = new DocumentBuilder()
     .setTitle('Osekkai API docs')
