@@ -1,0 +1,25 @@
+version: '3.5'
+
+services:
+  postgres:
+    container_name: osekkai_postgres_container
+    image: postgres
+    environment:
+      POSTGRES_USER: ${DB_USER:-osekkai}
+      POSTGRES_PASSWORD: ${DB_PASS:-osekkai}
+      POSTGRES_DB: ${DB_NAME:-osekkai}
+      PGDATA: /data/postgres
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - postgres
+    restart: unless-stopped
+
+networks:
+  postgres:
+    driver: bridge
+
+volumes:
+    postgres:
