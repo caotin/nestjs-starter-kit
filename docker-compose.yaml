@@ -5,6 +5,8 @@ services:
     container_name: osekkai_postgres_container
     image: postgres
     environment:
+      TZ: ${TZ:-UTC}
+      PGTZ: ${TZ:-UTC}
       POSTGRES_USER: ${DB_USER:-osekkai}
       POSTGRES_PASSWORD: ${DB_PASS:-osekkai}
       POSTGRES_DB: ${DB_NAME:-osekkai}
