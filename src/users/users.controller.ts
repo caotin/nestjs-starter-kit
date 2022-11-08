@@ -11,8 +11,9 @@ import {
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { AccessTokenGuard } from 'src/common/guards/accessToken.guard';
+import { AccessTokenGuard } from '@guards/access-token.guard';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { Auth } from '@decorators/auth.decorator';
 
 @ApiBearerAuth()
 @ApiTags('users')
@@ -35,7 +36,7 @@ export class UsersController {
     return this.usersService.findById(id);
   }
 
-  @UseGuards(AccessTokenGuard)
+  @Auth()
   @Patch(':id')
   update(@Param('id') id: number, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(id, updateUserDto);

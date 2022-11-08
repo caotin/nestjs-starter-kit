@@ -19,10 +19,15 @@
     "noFallthroughCasesInSwitch": false,
     "rootDir": "./",
     "paths": {
-      "@/*": ["./src/*"],
       "@exceptions/*": ["./src/common/exceptions/*"],
       "@environments": ["./src/common/environments"],
-      "@constants/*": ["./src/common/constants/*"]
+      "@constants/*": ["./src/common/constants/*"],
+      "@roles/*": ["./src/common/roles/*"],
+      "@enums/*": ["./src/common/enums/*"],
+      "@decorators/*": ["./src/common/decorators/*"],
+      "@guards/*": ["./src/common/guards/*"],
+      "@common/*": ["./src/common/common/*"],
+      "@/*": ["./src/*"],
     }
   }
 }
