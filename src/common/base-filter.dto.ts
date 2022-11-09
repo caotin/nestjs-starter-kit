@@ -1,7 +1,7 @@
 import { OrderType } from '@enums/order';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Expose, Transform, Type } from 'class-transformer';
-import { IsEnum, IsOptional, Max, Min } from 'class-validator';
+import { IsOptional, Max, Min } from 'class-validator';
 
 export abstract class BaseFilterDto<T> {
   @ApiPropertyOptional({

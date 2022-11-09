@@ -2,11 +2,11 @@ import { UserEntity } from '@/users/entites/user.entity';
 import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
-import { AccessTokenGuard } from '@guards/access-token.guard';
 import { RefreshTokenGuard } from '@guards/refresh-token.guard';
 import { CreateUserDto } from '@/users/dto/create-user.dto';
 import { AuthService } from './auth.service';
 import { AuthDto } from './dto/auth.dto';
+import { Auth } from '@decorators/auth.decorator';
 
 @ApiBearerAuth()
 @ApiTags('auth')
@@ -24,7 +24,7 @@ export class AuthController {
     return this.authService.signIn(data);
   }
 
-  @UseGuards(AccessTokenGuard)
+  @Auth()
   @Get('logout')
   logout(@Req() req: Request & { user: UserEntity }) {
     this.authService.logout(req.user['sub']);

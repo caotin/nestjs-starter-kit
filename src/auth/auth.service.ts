@@ -1,15 +1,16 @@
-import {
-  BadRequestException,
-  ForbiddenException,
-  Injectable,
-} from '@nestjs/common';
+import { JWT_TYPE } from '@/common/constants/jwt.type';
+import { MessageName } from '@/message';
+import { AccessDeniedException } from '@exceptions/access-denied.exception';
+import { ExistsException } from '@exceptions/exists.exeption';
+import { IncorrectException } from '@exceptions/incorrect.exception';
+import { NotFoundException } from '@exceptions/not-found.exception';
+import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
-import * as bcrypt from 'bcrypt';
-import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
 import { AuthDto } from './dto/auth.dto';
-import { JWT_TYPE } from '@/common/constants/jwt.type';
 
 @Injectable()
 export class AuthService {
@@ -24,12 +25,11 @@ export class AuthService {
     );
 
     if (userExists) {
-      throw new BadRequestException('User already exists');
+      throw new ExistsException(MessageName.USER);
     }
 
     // Hash password
     const hash = this.hashData(createUserDto.password);
-    console.log(hash);
 
     const newUser = await this.usersService.create({
       ...createUserDto,
@@ -44,13 +44,11 @@ export class AuthService {
   }
 
   async signIn(data: AuthDto) {
-    // Check if user exists
     const user = await this.usersService.findByUsername(data.username);
-    if (!user) throw new BadRequestException('User does not exist');
+    if (!user) throw new NotFoundException(MessageName.USER);
     const passwordMatches = user.comparePassword(data.password);
 
-    if (!passwordMatches)
-      throw new BadRequestException('Password is incorrect');
+    if (!passwordMatches) throw new IncorrectException(MessageName.USER);
     const tokens = await this.getTokens(user.id, user.username);
     await this.updateRefreshToken(user.id, tokens.refreshToken);
     return {
@@ -65,13 +63,12 @@ export class AuthService {
 
   async refreshTokens(userId: number, refreshToken: string) {
     const user = await this.usersService.findById(userId);
-    if (!user || !user.refreshToken)
-      throw new ForbiddenException('Access Denied');
+    if (!user || !user.refreshToken) throw new AccessDeniedException();
     const refreshTokenMatches = await bcrypt.verify(
       user.refreshToken,
       refreshToken,
     );
-    if (!refreshTokenMatches) throw new ForbiddenException('Access Denied');
+    if (!refreshTokenMatches) throw new AccessDeniedException();
     const tokens = await this.getTokens(user.id, user.username);
     await this.updateRefreshToken(user.id, tokens.refreshToken);
     return tokens;

@@ -1,5 +1,4 @@
 import { Auth } from '@decorators/auth.decorator';
-import { AccessTokenGuard } from '@guards/access-token.guard';
 import {
   Body,
   Controller,
@@ -9,7 +8,6 @@ import {
   Patch,
   Post,
   Query,
-  UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -19,6 +17,7 @@ import { UsersService } from './users.service';
 
 @ApiBearerAuth()
 @ApiTags('users')
+@Auth()
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
@@ -38,13 +37,11 @@ export class UsersController {
     return this.usersService.findById(id);
   }
 
-  @Auth()
   @Patch(':id')
   update(@Param('id') id: number, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(id, updateUserDto);
   }
 
-  @UseGuards(AccessTokenGuard)
   @Delete(':id')
   remove(@Param('id') id: number) {
     return this.usersService.remove(id);
