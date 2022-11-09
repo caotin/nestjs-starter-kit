@@ -1,25 +1,40 @@
+import { BaseService, Pagination } from '@/common/base.service';
+import { MessageName } from '@/message';
 import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { UserEntity } from './entites/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { NotFoundException } from '@/common/exceptions/not-found.exception';
-import { MessageName } from '@/message';
+import { CreateUserDto } from './dto/create-user.dto';
+import { FilterUserDto } from './dto/filter-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { UserEntity } from './entites/user.entity';
 
 @Injectable()
-export class UsersService {
+export class UsersService extends BaseService<
+  UserEntity,
+  CreateUserDto,
+  UpdateUserDto
+> {
   constructor(
     @InjectRepository(UserEntity)
     private userRepository: Repository<UserEntity>,
-  ) {}
+  ) {
+    super(MessageName.USER, userRepository);
+  }
 
   async create(createUserDto: CreateUserDto): Promise<UserEntity> {
     return await this.userRepository.save(createUserDto);
   }
 
-  async findAll(): Promise<UserEntity[]> {
-    return this.userRepository.find();
+  async findAll(filterUserDto: FilterUserDto): Promise<Pagination<UserEntity>> {
+    const [data, total] = await this.userRepository.findAndCount({
+      take: filterUserDto.limit,
+      skip: filterUserDto.skip,
+      order: filterUserDto.order,
+    });
+    return {
+      data,
+      total,
+    };
   }
 
   async findById(id: number): Promise<UserEntity> {
@@ -28,18 +43,5 @@ export class UsersService {
 
   async findByUsername(username: string): Promise<UserEntity> {
     return this.userRepository.findOneBy({ username });
-  }
-
-  async update(id: number, updateUserDto: UpdateUserDto): Promise<UserEntity> {
-    const user = await this.findById(id);
-    if (!user) {
-      throw new NotFoundException(MessageName.USER);
-    }
-    const toUpdate = Object.assign(user, updateUserDto);
-    return this.userRepository.save(toUpdate);
-  }
-
-  async remove(id: number) {
-    return await this.userRepository.delete(id);
   }
 }

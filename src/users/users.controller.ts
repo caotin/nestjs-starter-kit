@@ -1,19 +1,21 @@
+import { Auth } from '@decorators/auth.decorator';
+import { AccessTokenGuard } from '@guards/access-token.guard';
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
-import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { AccessTokenGuard } from '@guards/access-token.guard';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { Auth } from '@decorators/auth.decorator';
+import { CreateUserDto } from './dto/create-user.dto';
+import { FilterUserDto } from './dto/filter-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { UsersService } from './users.service';
 
 @ApiBearerAuth()
 @ApiTags('users')
@@ -27,8 +29,8 @@ export class UsersController {
   }
 
   @Get()
-  findAll() {
-    return this.usersService.findAll();
+  findAll(@Query() filterUserDto: FilterUserDto) {
+    return this.usersService.findAll(filterUserDto);
   }
 
   @Get(':id')

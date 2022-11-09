@@ -1,6 +1,6 @@
 import { UserEntity } from '@/users/entites/user.entity';
 import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { AccessTokenGuard } from '@guards/access-token.guard';
 import { RefreshTokenGuard } from '@guards/refresh-token.guard';
@@ -8,6 +8,7 @@ import { CreateUserDto } from '@/users/dto/create-user.dto';
 import { AuthService } from './auth.service';
 import { AuthDto } from './dto/auth.dto';
 
+@ApiBearerAuth()
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
