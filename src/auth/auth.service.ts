@@ -45,12 +45,16 @@ export class AuthService {
 
   async signIn(data: AuthDto) {
     const user = await this.usersService.findByUsername(data.username);
-    if (!user) throw new NotFoundException(MessageName.USER);
-    const passwordMatches = user.comparePassword(data.password);
 
+    if (!user) throw new NotFoundException(MessageName.USER);
+
+    const passwordMatches = user.comparePassword(data.password);
     if (!passwordMatches) throw new IncorrectException(MessageName.USER);
+
     const tokens = await this.getTokens(user.id, user.username);
+    delete user.password;
     await this.updateRefreshToken(user.id, tokens.refreshToken);
+
     return {
       ...tokens,
       user,
@@ -62,15 +66,22 @@ export class AuthService {
   }
 
   async refreshTokens(userId: number, refreshToken: string) {
+    console.log(userId);
+
     const user = await this.usersService.findById(userId);
+
     if (!user || !user.refreshToken) throw new AccessDeniedException();
-    const refreshTokenMatches = await bcrypt.verify(
-      user.refreshToken,
+
+    const refreshTokenMatches = bcrypt.compareSync(
       refreshToken,
+      user.refreshToken,
     );
     if (!refreshTokenMatches) throw new AccessDeniedException();
+
     const tokens = await this.getTokens(user.id, user.username);
+
     await this.updateRefreshToken(user.id, tokens.refreshToken);
+
     return tokens;
   }
 

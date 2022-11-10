@@ -37,10 +37,6 @@ export class UsersService extends BaseService<
     };
   }
 
-  async findById(id: number): Promise<UserEntity> {
-    return await this.userRepository.findOneBy({ id });
-  }
-
   async findByUsername(username: string): Promise<UserEntity> {
     return this.userRepository.findOneBy({ username });
   }

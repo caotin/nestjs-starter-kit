@@ -1,12 +1,12 @@
 import { UserEntity } from '@/users/entites/user.entity';
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { Request } from 'express';
 import { RefreshTokenGuard } from '@guards/refresh-token.guard';
 import { CreateUserDto } from '@/users/dto/create-user.dto';
 import { AuthService } from './auth.service';
 import { AuthDto } from './dto/auth.dto';
 import { Auth } from '@decorators/auth.decorator';
+import { User } from '@decorators/user.decorator';
 
 @ApiBearerAuth()
 @ApiTags('auth')
@@ -26,15 +26,14 @@ export class AuthController {
 
   @Auth()
   @Get('logout')
-  logout(@Req() req: Request & { user: UserEntity }) {
-    this.authService.logout(req.user['sub']);
+  logout(@User() user: UserEntity) {
+    this.authService.logout(user.id);
   }
 
   @UseGuards(RefreshTokenGuard)
   @Get('refresh')
-  refreshTokens(@Req() req: Request & { user: UserEntity }) {
-    const userId = req.user['sub'];
-    const refreshToken = req.user['refreshToken'];
-    return this.authService.refreshTokens(userId, refreshToken);
+  refreshTokens(@User() user: UserEntity) {
+    const refreshToken = user.refreshToken;
+    return this.authService.refreshTokens(user.id, refreshToken);
   }
 }

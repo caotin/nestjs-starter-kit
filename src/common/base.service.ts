@@ -16,6 +16,10 @@ export abstract class BaseService<T, K, V> {
 
   abstract findAll(filterDto?): Promise<T[] | Pagination<T>>;
 
+  async findById(id: number): Promise<T> {
+    return await this.repository.findOneBy({ id } as any);
+  }
+
   async create(createDto: K): Promise<T> {
     return await this.repository.save(createDto as any);
   }
