@@ -9,7 +9,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { UserEntity } from './entites/user.entity';
 import { AccountEntity } from './entites/accounts';
 import { CreateUserProfileDto } from './dto/create-user-profile.dto';
-import { UserProfilesEntity } from './entites/userProfiles';
+import { UserProfilesEntity } from './entites/user-profiles';
 
 @Injectable()
 export class UsersService extends BaseService<

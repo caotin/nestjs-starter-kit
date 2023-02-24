@@ -2,7 +2,7 @@ import { BaseEntity } from '@/common/base.entity';
 import { IsEmail } from 'class-validator';
 import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { UserProfilesEntity } from './userProfiles';
+import { UserProfilesEntity } from './user-profiles';
 
 @Entity('accounts')
 export class AccountEntity extends BaseEntity {
