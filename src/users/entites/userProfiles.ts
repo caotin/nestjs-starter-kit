@@ -1,4 +1,5 @@
 import { BaseEntity } from '@/common/base.entity';
+import { GenderType } from '@enums/gender';
 import { Column, Entity } from 'typeorm';
 
 @Entity('user_profiles')
@@ -13,7 +14,7 @@ export class UserProfilesEntity extends BaseEntity {
   address: string;
 
   @Column({ nullable: true })
-  gender: boolean; // 0: male, 1: female
+  gender: GenderType;
 
   @Column({ nullable: true })
   dob: Date;
