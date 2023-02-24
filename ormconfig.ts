@@ -1,9 +1,9 @@
-import { DataSourceOptions } from 'typeorm';
 import * as dotenv from 'dotenv';
+import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 dotenv.config();
 
-export const config: DataSourceOptions = {
-  type: 'postgres',
+export const config: TypeOrmModuleOptions = {
+  type: 'mysql',
   host: process.env.DB_HOST,
   port: +process.env.DB_PORT,
   username: process.env.DB_USER,
@@ -11,5 +11,6 @@ export const config: DataSourceOptions = {
   database: process.env.DB_NAME,
   synchronize: true,
   logging: false,
-  entities: ['dist/**/*.entity.js'],
+  autoLoadEntities: true,
+  entities: ['dist/**/*.entity{.ts,.js}'],
 };
