@@ -1,8 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsString } from 'class-validator';
-import { UserEntity } from '../entites/user.entity';
 
-export class CreateUserDto {
+export class CreateCustomerDto {
   @ApiProperty()
   @IsEmail()
   email: string;
@@ -13,10 +12,5 @@ export class CreateUserDto {
 
   @ApiProperty()
   @IsString()
-  password: string;
-
-  // @ApiProperty({ required: false })
-  refreshToken?: string;
-
-  token_stripe?: string;
+  description: string;
 }

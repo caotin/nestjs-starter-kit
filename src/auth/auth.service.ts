@@ -4,13 +4,15 @@ import { AccessDeniedException } from '@exceptions/access-denied.exception';
 import { ExistsException } from '@exceptions/exists.exeption';
 import { IncorrectException } from '@exceptions/incorrect.exception';
 import { NotFoundException } from '@exceptions/not-found.exception';
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
 import { AuthDto } from './dto/auth.dto';
+import { StripeService } from '@/stripe/stripe.service';
+import { CreateCustomerDto } from '@/stripe/dto/create-customer.dto';
 
 @Injectable()
 export class AuthService {
@@ -18,11 +20,10 @@ export class AuthService {
     private usersService: UsersService,
     private jwtService: JwtService,
     private configService: ConfigService,
+    private stripeService: StripeService,
   ) {}
   async signUp(createUserDto: CreateUserDto): Promise<any> {
-    const userExists = await this.usersService.findByUsername(
-      createUserDto.username,
-    );
+    const userExists = await this.usersService.findByEmail(createUserDto.email);
 
     if (userExists) {
       throw new ExistsException(MessageName.USER);
@@ -31,15 +32,31 @@ export class AuthService {
     // Hash password
     const hash = this.hashData(createUserDto.password);
 
-    const newUser = await this.usersService.create({
+    // create account stripe
+    const customerStripe = await this.stripeService.createrCustomer({
+      email: createUserDto.email,
+      name: createUserDto.name,
+      description: `Create account customer stripe of ${createUserDto.email}`,
+    } as CreateCustomerDto);
+
+    if (!customerStripe) {
+      throw new IncorrectException(MessageName.USER);
+    }
+
+    const newUser = await this.usersService.createAccount({
       ...createUserDto,
       password: hash,
+      token_stripe: customerStripe.id,
     });
-    const tokens = await this.getTokens(newUser.id, newUser.username);
+
+    const tokens = await this.getTokens(newUser.id, newUser.email);
     await this.updateRefreshToken(newUser.id, tokens.refreshToken);
     return {
       ...tokens,
-      user: newUser,
+      account: {
+        ...newUser,
+        refreshToken: newUser.refreshToken,
+      },
     };
   }
 
@@ -91,17 +108,17 @@ export class AuthService {
 
   async updateRefreshToken(userId: number, refreshToken: string) {
     const hashedRefreshToken = await this.hashData(refreshToken);
-    await this.usersService.update(userId, {
+    await this.usersService.updateAccount(userId, {
       refreshToken: hashedRefreshToken,
     });
   }
 
-  async getTokens(userId: number, username: string) {
+  async getTokens(userId: number, email: string) {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
         {
           sub: userId,
-          username,
+          email,
         },
         {
           secret: this.configService.get<string>(JWT_TYPE.JWT_ACCESS_SECRET),
@@ -111,7 +128,7 @@ export class AuthService {
       this.jwtService.signAsync(
         {
           sub: userId,
-          username,
+          email,
         },
         {
           secret: this.configService.get<string>(JWT_TYPE.JWT_REFRESH_SECRET),
