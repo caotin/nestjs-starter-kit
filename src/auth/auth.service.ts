@@ -10,9 +10,11 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
-import { AuthDto } from './dto/auth.dto';
+import { CreateAuthDto, CreateFacebookAccount, CreateGoogleAccount } from './dto/auth.dto';
 import { StripeService } from '@/stripe/stripe.service';
 import { CreateCustomerDto } from '@/stripe/dto/create-customer.dto';
+import Stripe from 'stripe';
+import { AccountEntity } from '@/users/entites/accounts';
 
 @Injectable()
 export class AuthService {
@@ -60,22 +62,80 @@ export class AuthService {
     };
   }
 
-  async signIn(data: AuthDto) {
-    const user = await this.usersService.findByUsername(data.username);
-
-    if (!user) throw new NotFoundException(MessageName.USER);
-
-    const passwordMatches = user.comparePassword(data.password);
+  async signIn(data: CreateAuthDto) {
+    const account = await this.usersService.findByEmail(data.email);
+    
+    if (!account) throw new NotFoundException(MessageName.USER);
+    
+    const passwordMatches = account.comparePassword(data.password);
     if (!passwordMatches) throw new IncorrectException(MessageName.USER);
+    
+    const tokens = await this.getTokens(account.id, account.email);
+    await this.updateRefreshToken(account.id, tokens.refreshToken);
+    
+    return {
+      ...tokens,
+      account,
+    };
+  }
 
-    const tokens = await this.getTokens(user.id, user.username);
-    delete user.password;
-    await this.updateRefreshToken(user.id, tokens.refreshToken);
+  /**
+   * This function creates a customer in Stripe and returns the customer object.
+   * @param {string} email - string, name: string
+   * @param {string} name - The name of the customer.
+   * @returns A promise of a Stripe.Customer
+   */
+  async createCustomerStripe(email: string, name: string): Promise<Stripe.Customer> {
+    const customerStripe: Stripe.Customer = await this.stripeService.createrCustomer({
+      email,
+      name,
+      description: `Create account customer stripe of ${email}`
+    });
+
+    return customerStripe;
+  }
+  
+  async googleLogin(userGG: CreateGoogleAccount) {
+    const { email, name } = userGG;
+    let account: AccountEntity = await this.usersService.findByEmail(email);
+
+    if(!account) {
+      const customerStripe = await this.createCustomerStripe(email, name);
+
+      account = await this.usersService.createAccount({
+        ...userGG,
+        token_stripe: customerStripe.id
+      });
+    }
+
+    const tokens = await this.getTokens(account.id, account.email);
+    await this.updateRefreshToken(account.id, tokens.refreshToken);
 
     return {
       ...tokens,
-      user,
-    };
+      account
+    }
+  }
+
+  async facebookLogin(userFB: CreateFacebookAccount) {
+    const { email, name } = userFB;
+    let account: AccountEntity = await this.usersService.findByEmail(email);
+    if(!account) {
+      const customerStripe = await this.createCustomerStripe(email, name);
+
+      account = await this.usersService.createAccount({
+        ...userFB,
+        token_stripe: customerStripe.id
+      }); 
+    }
+
+    const tokens = await this.getTokens(account.id, account.email);
+    await this.updateRefreshToken(account.id, tokens.refreshToken);
+
+    return {
+      ...tokens,
+      account
+    }
   }
 
   async logout(userId: number) {
@@ -95,7 +155,7 @@ export class AuthService {
     );
     if (!refreshTokenMatches) throw new AccessDeniedException();
 
-    const tokens = await this.getTokens(user.id, user.username);
+    const tokens = await this.getTokens(user.id, user.email);
 
     await this.updateRefreshToken(user.id, tokens.refreshToken);
 

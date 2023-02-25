@@ -13,7 +13,7 @@ export class AccountEntity extends BaseEntity {
   @Column()
   name: string;
 
-  @Column()
+  @Column({ nullable: true })
   password: string;
 
   @Column({ nullable: true })

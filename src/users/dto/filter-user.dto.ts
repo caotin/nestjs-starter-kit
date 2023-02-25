@@ -3,7 +3,7 @@ import { OrderType } from '@enums/order';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import { IsEnum, IsOptional } from 'class-validator';
-import { UserEntity } from '../entites/user.entity';
+import { AccountEntity } from '../entites/accounts';
 
 class OrderDto {
   @ApiPropertyOptional({ enum: OrderType, name: 'order[name]' })
@@ -23,7 +23,7 @@ class OrderDto {
   updatedAt?: OrderType;
 }
 
-export class FilterUserDto extends BaseFilterDto<UserEntity> {
+export class FilterUserDto extends BaseFilterDto<AccountEntity> {
   @ApiPropertyOptional()
   @IsOptional()
   @Expose()
