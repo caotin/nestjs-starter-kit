@@ -19,7 +19,7 @@ export class AccountEntity extends BaseEntity {
   @Column({ nullable: true })
   pin: string;
 
-  @Column()
+  @Column({ nullable: true })
   token_stripe: string;
 
   @Column({ nullable: true })
@@ -36,10 +36,6 @@ export class AccountEntity extends BaseEntity {
 
   @Column({ nullable: true })
   refreshToken: string;
-
-  @OneToOne(() => UserProfilesEntity)
-  @JoinColumn()
-  user_profile: UserProfilesEntity;
 
   comparePassword(password: string) {
     return bcrypt.compareSync(password, this.password);

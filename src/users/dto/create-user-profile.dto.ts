@@ -1,26 +1,34 @@
 import { GenderType } from '@enums/gender';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsDate, IsString } from 'class-validator';
+import { IsBoolean, IsDate, IsString, ValidateIf } from 'class-validator';
 import { IsNull } from 'typeorm';
+import { AccountEntity } from '../entites/accounts';
 
 export class CreateUserProfileDto {
   @ApiProperty()
   @IsString()
-  avatar: string;
+  @ValidateIf((object, value) => value !== null)
+  avatar?: string;
 
   @ApiProperty()
   @IsString()
-  phone: string;
+  @ValidateIf((object, value) => value !== null)
+  phone?: string;
 
   @ApiProperty()
   @IsString()
-  address: string;
+  @ValidateIf((object, value) => value !== null)
+  address?: string | null;
 
   @ApiProperty()
-  @IsBoolean() // 0: male, 1:female
-  gender: GenderType;
+  @IsString()
+  @ValidateIf((object, value) => value !== null)
+  gender?: GenderType | null;
 
   @ApiProperty()
   @IsDate()
-  dob: Date;
+  @ValidateIf((object, value) => value !== null)
+  dob?: Date;
+
+  account?: AccountEntity;
 }

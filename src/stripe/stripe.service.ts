@@ -3,6 +3,8 @@ import { ConfigService } from '@nestjs/config';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import Stripe from 'stripe';
 import { STRIPE_TYPE } from '@constants/stripe.type';
+import { IncorrectException } from '@exceptions/incorrect.exception';
+import { MessageName } from '@/message';
 
 @Injectable()
 export class StripeService {
@@ -18,6 +20,12 @@ export class StripeService {
   }
 
   async createrCustomer(createCustomerDto: CreateCustomerDto) {
-    return await this.stripe.customers.create(createCustomerDto);
+    const customerStripe = await this.stripe.customers.create(
+      createCustomerDto,
+    );
+    if (!customerStripe) {
+      throw new IncorrectException(MessageName.USER);
+    }
+    return customerStripe;
   }
 }

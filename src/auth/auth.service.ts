@@ -10,11 +10,17 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
-import { CreateAuthDto, CreateFacebookAccount, CreateGoogleAccount } from './dto/auth.dto';
+import {
+  CreateAuthDto,
+  CreateFacebookAccount,
+  CreateGoogleAccount,
+} from './dto/auth.dto';
 import { StripeService } from '@/stripe/stripe.service';
 import { CreateCustomerDto } from '@/stripe/dto/create-customer.dto';
-import Stripe from 'stripe';
 import { AccountEntity } from '@/users/entites/accounts';
+import { TransactionManager } from '@/common/transaction-manager';
+import { EntityManager } from 'typeorm';
+import { UserProfileService } from '@/users/user-profile.service';
 
 @Injectable()
 export class AuthService {
@@ -23,56 +29,66 @@ export class AuthService {
     private jwtService: JwtService,
     private configService: ConfigService,
     private stripeService: StripeService,
+    private transactionManager: TransactionManager,
+    private userProfileService: UserProfileService,
   ) {}
-  async signUp(createUserDto: CreateUserDto): Promise<any> {
-    const userExists = await this.usersService.findByEmail(createUserDto.email);
 
+  async signUp(createUserDto: CreateUserDto): Promise<any> {
+    let newAccount;
+
+    const userExists = await this.usersService.findByEmail(createUserDto.email);
     if (userExists) {
       throw new ExistsException(MessageName.USER);
     }
 
-    // Hash password
-    const hash = this.hashData(createUserDto.password);
+    await this.transactionManager.transaction(
+      async (entityManager: EntityManager) => {
+        const customerStripe = await this.stripeService.createrCustomer({
+          email: createUserDto.email,
+          name: createUserDto.name,
+          description: `Create account customer stripe of ${createUserDto.email}`,
+        } as CreateCustomerDto);
 
-    // create account stripe
-    const customerStripe = await this.stripeService.createrCustomer({
-      email: createUserDto.email,
-      name: createUserDto.name,
-      description: `Create account customer stripe of ${createUserDto.email}`,
-    } as CreateCustomerDto);
+        const hash = this.hashData(createUserDto.password);
 
-    if (!customerStripe) {
-      throw new IncorrectException(MessageName.USER);
-    }
+        newAccount = await this.usersService.createAccountWithTransaction(
+          {
+            ...createUserDto,
+            password: hash,
+            token_stripe: customerStripe.id,
+          },
+          entityManager,
+        );
 
-    const newUser = await this.usersService.createAccount({
-      ...createUserDto,
-      password: hash,
-      token_stripe: customerStripe.id,
-    });
+        await this.userProfileService.createWithTransaction(
+          {
+            account: newAccount,
+          },
+          entityManager,
+        );
+      },
+    );
 
-    const tokens = await this.getTokens(newUser.id, newUser.email);
-    await this.updateRefreshToken(newUser.id, tokens.refreshToken);
+    const tokens = await this.getTokens(newAccount.id, newAccount.email);
+    await this.updateRefreshToken(newAccount.id, tokens.refreshToken);
+
     return {
       ...tokens,
-      account: {
-        ...newUser,
-        refreshToken: newUser.refreshToken,
-      },
+      account: { ...newAccount },
     };
   }
 
   async signIn(data: CreateAuthDto) {
     const account = await this.usersService.findByEmail(data.email);
-    
+
     if (!account) throw new NotFoundException(MessageName.USER);
-    
+
     const passwordMatches = account.comparePassword(data.password);
     if (!passwordMatches) throw new IncorrectException(MessageName.USER);
-    
+
     const tokens = await this.getTokens(account.id, account.email);
     await this.updateRefreshToken(account.id, tokens.refreshToken);
-    
+
     return {
       ...tokens,
       account,
@@ -83,16 +99,16 @@ export class AuthService {
     const { email, name } = userGG;
     let account: AccountEntity = await this.usersService.findByEmail(email);
 
-    if(!account) {
+    if (!account) {
       const customerStripe = await this.stripeService.createrCustomer({
         description: `Create account customer stripe of ${email}`,
         email,
-        name
+        name,
       });
 
       account = await this.usersService.createAccount({
         ...userGG,
-        token_stripe: customerStripe.id
+        token_stripe: customerStripe.id,
       });
     }
 
@@ -101,24 +117,24 @@ export class AuthService {
 
     return {
       ...tokens,
-      account
-    }
+      account,
+    };
   }
 
   async facebookLogin(userFB: CreateFacebookAccount) {
     const { email, name } = userFB;
     let account: AccountEntity = await this.usersService.findByEmail(email);
-    if(!account) {
+    if (!account) {
       const customerStripe = await this.stripeService.createrCustomer({
         description: `Create account customer stripe of ${email}`,
         email,
-        name
+        name,
       });
 
       account = await this.usersService.createAccount({
         ...userFB,
-        token_stripe: customerStripe.id
-      }); 
+        token_stripe: customerStripe.id,
+      });
     }
 
     const tokens = await this.getTokens(account.id, account.email);
@@ -126,8 +142,8 @@ export class AuthService {
 
     return {
       ...tokens,
-      account
-    }
+      account,
+    };
   }
 
   async logout(userId: number) {
@@ -135,8 +151,6 @@ export class AuthService {
   }
 
   async refreshTokens(userId: number, refreshToken: string) {
-    console.log(userId);
-
     const user = await this.usersService.findById(userId);
 
     if (!user || !user.refreshToken) throw new AccessDeniedException();
@@ -160,7 +174,7 @@ export class AuthService {
 
   async updateRefreshToken(userId: number, refreshToken: string) {
     const hashedRefreshToken = await this.hashData(refreshToken);
-    await this.usersService.updateAccount(userId, {
+    await this.usersService.update(userId, {
       refreshToken: hashedRefreshToken,
     });
   }
