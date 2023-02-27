@@ -1,27 +1,30 @@
-version: '3.5'
+version: "3.9"
 
 services:
-  postgres:
-    container_name: osekkai_postgres_container
-    image: postgres
+  mysql:
+    image: mysql:latest
+    restart: always
     environment:
-      TZ: ${TZ:-UTC}
-      PGTZ: ${TZ:-UTC}
-      POSTGRES_USER: ${DB_USER:-osekkai}
-      POSTGRES_PASSWORD: ${DB_PASS:-osekkai}
-      POSTGRES_DB: ${DB_NAME:-osekkai}
-      PGDATA: /data/postgres
-    volumes:
-      - ./data/postgres:/var/lib/postgresql/data
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_ROOT_PASSWORD: ${DB_PASS}
     ports:
-      - "5432:5432"
-    networks:
-      - postgres
-    restart: unless-stopped
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
 
-networks:
-  postgres:
-    driver: bridge
+  api:
+    build: .
+    restart: always
+    depends_on:
+      - mysql
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      DB_NAME: ${DB_NAME}
+    ports:
+      - "3001:3001"
 
 volumes:
-    postgres:
+  mysql_data:

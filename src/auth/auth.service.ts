@@ -79,28 +79,16 @@ export class AuthService {
     };
   }
 
-  /**
-   * This function creates a customer in Stripe and returns the customer object.
-   * @param {string} email - string, name: string
-   * @param {string} name - The name of the customer.
-   * @returns A promise of a Stripe.Customer
-   */
-  async createCustomerStripe(email: string, name: string): Promise<Stripe.Customer> {
-    const customerStripe: Stripe.Customer = await this.stripeService.createrCustomer({
-      email,
-      name,
-      description: `Create account customer stripe of ${email}`
-    });
-
-    return customerStripe;
-  }
-  
   async googleLogin(userGG: CreateGoogleAccount) {
     const { email, name } = userGG;
     let account: AccountEntity = await this.usersService.findByEmail(email);
 
     if(!account) {
-      const customerStripe = await this.createCustomerStripe(email, name);
+      const customerStripe = await this.stripeService.createrCustomer({
+        description: `Create account customer stripe of ${email}`,
+        email,
+        name
+      });
 
       account = await this.usersService.createAccount({
         ...userGG,
@@ -121,7 +109,11 @@ export class AuthService {
     const { email, name } = userFB;
     let account: AccountEntity = await this.usersService.findByEmail(email);
     if(!account) {
-      const customerStripe = await this.createCustomerStripe(email, name);
+      const customerStripe = await this.stripeService.createrCustomer({
+        description: `Create account customer stripe of ${email}`,
+        email,
+        name
+      });
 
       account = await this.usersService.createAccount({
         ...userFB,
