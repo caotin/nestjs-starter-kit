@@ -19,19 +19,11 @@ export class UsersService extends BaseService<
   constructor(
     @InjectRepository(AccountEntity)
     private accountRepository: Repository<AccountEntity>,
-    @InjectRepository(UserProfilesEntity)
-    private userProfilesRepository: Repository<UserProfilesEntity>,
   ) {
     super(MessageName.USER, accountRepository);
   }
 
-  async createUserProfile(
-    createUserProfileDto: CreateUserProfileDto,
-  ): Promise<UserProfilesEntity> {
-    return await this.userProfilesRepository.save(createUserProfileDto);
-  }
-
-  async createWithTransaction(
+  async createAccountWithTransaction(
     createUserDto: CreateUserDto,
     manager: EntityManager,
   ): Promise<AccountEntity> {
@@ -43,7 +35,16 @@ export class UsersService extends BaseService<
     return await this.accountRepository.save(createUserDto);
   }
 
-  async findAll(filterUserDto: FilterUserDto): Promise<Pagination<AccountEntity>> {
+  async createAccountWithInfor(
+    createUserDto: CreateUserDto,
+    entityManager: EntityManager,
+  ) {
+    return await entityManager.create(AccountEntity, createUserDto);
+  }
+
+  async findAll(
+    filterUserDto: FilterUserDto,
+  ): Promise<Pagination<AccountEntity>> {
     const [data, total] = await this.accountRepository.findAndCount({
       take: filterUserDto.limit,
       skip: filterUserDto.skip,
@@ -60,6 +61,6 @@ export class UsersService extends BaseService<
   // }
 
   async findByEmail(email: string): Promise<AccountEntity> {
-    return this.accountRepository.findOneBy({ email });
+    return await this.accountRepository.findOneBy({ email });
   }
 }

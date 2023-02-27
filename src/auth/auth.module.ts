@@ -8,10 +8,18 @@ import { RefreshTokenStrategy } from './strategies/refreshToken.strategy';
 import { StripeModule } from '@/stripe/stripe.module';
 import { GoogleStrategy } from './strategies/google.strategy';
 import { FackebookStrategy } from './strategies/facebook.strategy';
+import { TransactionManager } from '@/common/transaction-manager';
 
 @Module({
   imports: [JwtModule.register({}), UsersModule, StripeModule],
   controllers: [AuthController],
-  providers: [AuthService, AccessTokenStrategy, RefreshTokenStrategy, GoogleStrategy, FackebookStrategy],
+  providers: [
+    AuthService,
+    AccessTokenStrategy,
+    RefreshTokenStrategy,
+    GoogleStrategy,
+    FackebookStrategy,
+    TransactionManager,
+  ],
 })
 export class AuthModule {}

@@ -1,6 +1,7 @@
 import { BaseEntity } from '@/common/base.entity';
 import { GenderType } from '@enums/gender';
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
+import { AccountEntity } from './accounts';
 
 @Entity('user_profiles')
 export class UserProfilesEntity extends BaseEntity {
@@ -18,4 +19,8 @@ export class UserProfilesEntity extends BaseEntity {
 
   @Column({ nullable: true })
   dob: Date;
+
+  @OneToOne(() => AccountEntity)
+  @JoinColumn()
+  account: AccountEntity;
 }
