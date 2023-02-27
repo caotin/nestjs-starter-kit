@@ -19,7 +19,7 @@ export class AccountEntity extends BaseEntity {
   @Column({ nullable: true })
   pin: string;
 
-  @Column()
+  @Column({ nullable: true })
   token_stripe: string;
 
   @Column({ nullable: true })
