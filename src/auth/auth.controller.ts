@@ -3,7 +3,11 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { RefreshTokenGuard } from '@guards/refresh-token.guard';
 import { CreateUserDto } from '@/users/dto/create-user.dto';
 import { AuthService } from './auth.service';
-import { CreateAuthDto, CreateFacebookAccount, CreateGoogleAccount } from './dto/auth.dto';
+import {
+  CreateAuthDto,
+  CreateFacebookAccount,
+  CreateGoogleAccount,
+} from './dto/auth.dto';
 import { Auth } from '@decorators/auth.decorator';
 import { User } from '@decorators/user.decorator';
 import { AccountEntity } from '@/users/entites/accounts';
@@ -18,7 +22,7 @@ import { Request } from 'express';
 @Serialize(ReturnAuthDto)
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) { }
+  constructor(private authService: AuthService) {}
 
   @Post('signup')
   signup(@Body() createUserDto: CreateUserDto) {
@@ -62,5 +66,4 @@ export class AuthController {
   async facebookAuthRedirect(@Req() req: RequestWithUser) {
     return this.authService.facebookLogin(req.user as CreateFacebookAccount);
   }
-
 }
