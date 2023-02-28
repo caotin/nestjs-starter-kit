@@ -1,11 +1,13 @@
 import { BaseService, Pagination } from '@/common/base.service';
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { UserProfilesEntity } from './entites/user-profiles';
 import { CreateUserProfileDto } from './dto/create-user-profile.dto';
 import { UpdateUserProfileDto } from './dto/update-user-profile.dto';
 import { EntityManager, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MessageName } from '@/message';
+import { AccountEntity } from './entites/accounts';
+import { NotFoundException } from '@exceptions/not-found.exception';
 
 @Injectable()
 export class UserProfileService extends BaseService<
@@ -31,5 +33,44 @@ export class UserProfileService extends BaseService<
     entityManager: EntityManager,
   ): Promise<UserProfilesEntity> {
     return await entityManager.save(UserProfilesEntity, createDto);
+  }
+
+  async createUserProfile(
+    createUserProfileDto: CreateUserProfileDto,
+    account: AccountEntity
+  ) {
+    const userProfile = await this.userProfilesRepository.findOne({
+      where: {
+        account: {
+          id: account.id
+        }
+      },
+      relations: {
+        account: true
+      }
+    });
+
+    if(!userProfile) {
+      throw new InternalServerErrorException()
+    }
+
+    Object.assign(userProfile, createUserProfileDto);
+    return this.userProfilesRepository.save(userProfile);
+  }
+
+  async updateUserProfile(
+    id: number,
+    updateUserProfileDto: UpdateUserProfileDto,
+  ) {
+    const userProfiletoUpdate = await this.userProfilesRepository.findOne({ where: { id } });
+
+    console.log(userProfiletoUpdate);
+
+    if(!userProfiletoUpdate) {
+      throw new NotFoundException(MessageName.USER);
+    }
+
+    Object.assign(userProfiletoUpdate, updateUserProfileDto);
+    return this.userProfilesRepository.save(userProfiletoUpdate);
   }
 }

@@ -14,13 +14,21 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { FilterUserDto } from './dto/filter-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
+import { CreateUserProfileDto } from './dto/create-user-profile.dto';
+import { User } from '@decorators/user.decorator';
+import { AccountEntity } from './entites/accounts';
+import { UserProfileService } from './user-profile.service';
+import { UpdateUserProfileDto } from './dto/update-user-profile.dto';
 
 @ApiBearerAuth()
 @ApiTags('users')
 @Auth()
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly userProfileService: UserProfileService
+  ) {}
 
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
@@ -45,5 +53,18 @@ export class UsersController {
   @Delete(':id')
   remove(@Param('id') id: number) {
     return this.usersService.remove(id);
+  }
+
+  @Post('user_profile')
+  createUserProfile(@Body() createUserProfileDto: CreateUserProfileDto, @User() account: AccountEntity) {
+    return this.userProfileService.createUserProfile(createUserProfileDto, account);
+  }
+
+  @Patch('user_profile/:id')
+  updateUserProfile(@Param('id') id: number, @Body() updateUserProfileDto: UpdateUserProfileDto) {
+    console.log("go in here");
+    console.log(updateUserProfileDto);
+
+    return this.userProfileService.updateUserProfile(id, updateUserProfileDto);
   }
 }
