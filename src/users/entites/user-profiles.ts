@@ -9,6 +9,9 @@ export class UserProfilesEntity extends BaseEntity {
   avatar: string;
 
   @Column({ nullable: true })
+  fullname: string;
+
+  @Column({ nullable: true })
   phone: string;
 
   @Column({ nullable: true })
