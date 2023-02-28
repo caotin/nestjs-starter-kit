@@ -1,7 +1,6 @@
 import { GenderType } from '@enums/gender';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsDate, IsString, ValidateIf } from 'class-validator';
-import { IsNull } from 'typeorm';
+import { IsDateString, IsString, ValidateIf } from 'class-validator';
 import { AccountEntity } from '../entites/accounts';
 
 export class CreateUserProfileDto {
@@ -9,6 +8,11 @@ export class CreateUserProfileDto {
   @IsString()
   @ValidateIf((object, value) => value !== null)
   avatar?: string;
+
+  @ApiProperty()
+  @IsString()
+  @ValidateIf((object, value) => value !== null)
+  fullname?: string;
 
   @ApiProperty()
   @IsString()
@@ -26,7 +30,7 @@ export class CreateUserProfileDto {
   gender?: GenderType | null;
 
   @ApiProperty()
-  @IsDate()
+  @IsDateString()
   @ValidateIf((object, value) => value !== null)
   dob?: Date;
 
