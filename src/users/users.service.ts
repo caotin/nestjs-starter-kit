@@ -23,12 +23,11 @@ export class UsersService extends BaseService<
     super(MessageName.USER, accountRepository);
   }
 
-  async createAccountWithTransaction(
-    createUserDto: CreateUserDto,
-    manager: EntityManager,
-  ): Promise<AccountEntity> {
-    const account = await manager.save(AccountEntity, createUserDto);
-    return account;
+  async createAccountWithTransaction<T>(
+    createUserDto: T,
+    manager: EntityManager
+  ) {
+    return await manager.save(AccountEntity, createUserDto);
   }
 
   async createAccount<T>(createUserDto: T): Promise<AccountEntity> {
