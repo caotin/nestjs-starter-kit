@@ -100,16 +100,30 @@ export class AuthService {
     let account: AccountEntity = await this.usersService.findByEmail(email);
 
     if (!account) {
-      const customerStripe = await this.stripeService.createrCustomer({
-        description: `Create account customer stripe of ${email}`,
-        email,
-        name,
-      });
+      await this.transactionManager.transaction(
+        async (entityManager: EntityManager) => {
+          const customerStripe = await this.stripeService.createrCustomer({
+            description: `Create account customer stripe of ${email}`,
+            email,
+            name,
+          });
 
-      account = await this.usersService.createAccount({
-        ...userGG,
-        token_stripe: customerStripe.id,
-      });
+          account = await this.usersService.createAccountWithTransaction(
+            {
+              ...userGG,
+              token_stripe: customerStripe.id
+            },
+            entityManager
+          )
+
+          await this.userProfileService.createWithTransaction(
+            {
+              account: account
+            },
+            entityManager
+          );
+        }
+      );
     }
 
     const tokens = await this.getTokens(account.id, account.email);
@@ -125,16 +139,30 @@ export class AuthService {
     const { email, name } = userFB;
     let account: AccountEntity = await this.usersService.findByEmail(email);
     if (!account) {
-      const customerStripe = await this.stripeService.createrCustomer({
-        description: `Create account customer stripe of ${email}`,
-        email,
-        name,
-      });
+      await this.transactionManager.transaction(
+        async (entityManager: EntityManager) => {
+          const customerStripe = await this.stripeService.createrCustomer({
+            description: `Create account customer stripe of ${email}`,
+            email,
+            name,
+          });
 
-      account = await this.usersService.createAccount({
-        ...userFB,
-        token_stripe: customerStripe.id,
-      });
+          account = await this.usersService.createAccountWithTransaction(
+            {
+              ...userFB,
+              token_stripe: customerStripe.id
+            },
+            entityManager
+          );
+
+          await this.userProfileService.createWithTransaction(
+            {
+              account: account
+            },
+            entityManager
+          );
+        }
+      );
     }
 
     const tokens = await this.getTokens(account.id, account.email);
