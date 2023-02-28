@@ -64,8 +64,6 @@ export class UserProfileService extends BaseService<
   ) {
     const userProfiletoUpdate = await this.userProfilesRepository.findOne({ where: { id } });
 
-    console.log(userProfiletoUpdate);
-
     if(!userProfiletoUpdate) {
       throw new NotFoundException(MessageName.USER);
     }

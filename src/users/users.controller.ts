@@ -62,9 +62,6 @@ export class UsersController {
 
   @Patch('user_profile/:id')
   updateUserProfile(@Param('id') id: number, @Body() updateUserProfileDto: UpdateUserProfileDto) {
-    console.log("go in here");
-    console.log(updateUserProfileDto);
-
     return this.userProfileService.updateUserProfile(id, updateUserProfileDto);
   }
 }
