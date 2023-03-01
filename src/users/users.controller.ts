@@ -27,8 +27,13 @@ import { UpdateUserProfileDto } from './dto/update-user-profile.dto';
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
-    private readonly userProfileService: UserProfileService
+    private readonly userProfileService: UserProfileService,
   ) {}
+
+  @Get('search')
+  searchUser(@Query('text') text: string) {
+    return this.usersService.searchUserByNameAndEmail(text);
+  }
 
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
@@ -38,6 +43,25 @@ export class UsersController {
   @Get()
   findAll(@Query() filterUserDto: FilterUserDto) {
     return this.usersService.findAll(filterUserDto);
+  }
+
+  @Post('user_profile')
+  createUserProfile(
+    @Body() createUserProfileDto: CreateUserProfileDto,
+    @User() account: AccountEntity,
+  ) {
+    return this.userProfileService.createUserProfile(
+      createUserProfileDto,
+      account,
+    );
+  }
+
+  @Patch('user_profile/:id')
+  updateUserProfile(
+    @Param('id') id: number,
+    @Body() updateUserProfileDto: UpdateUserProfileDto,
+  ) {
+    return this.userProfileService.updateUserProfile(id, updateUserProfileDto);
   }
 
   @Get(':id')
@@ -53,15 +77,5 @@ export class UsersController {
   @Delete(':id')
   remove(@Param('id') id: number) {
     return this.usersService.remove(id);
-  }
-
-  @Post('user_profile')
-  createUserProfile(@Body() createUserProfileDto: CreateUserProfileDto, @User() account: AccountEntity) {
-    return this.userProfileService.createUserProfile(createUserProfileDto, account);
-  }
-
-  @Patch('user_profile/:id')
-  updateUserProfile(@Param('id') id: number, @Body() updateUserProfileDto: UpdateUserProfileDto) {
-    return this.userProfileService.updateUserProfile(id, updateUserProfileDto);
   }
 }

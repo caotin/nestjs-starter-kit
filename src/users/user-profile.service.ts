@@ -37,21 +37,21 @@ export class UserProfileService extends BaseService<
 
   async createUserProfile(
     createUserProfileDto: CreateUserProfileDto,
-    account: AccountEntity
+    account: AccountEntity,
   ) {
     const userProfile = await this.userProfilesRepository.findOne({
       where: {
         account: {
-          id: account.id
-        }
+          id: account.id,
+        },
       },
       relations: {
-        account: true
-      }
+        account: true,
+      },
     });
 
-    if(!userProfile) {
-      throw new InternalServerErrorException()
+    if (!userProfile) {
+      throw new InternalServerErrorException();
     }
 
     Object.assign(userProfile, createUserProfileDto);
@@ -62,13 +62,21 @@ export class UserProfileService extends BaseService<
     id: number,
     updateUserProfileDto: UpdateUserProfileDto,
   ) {
-    const userProfiletoUpdate = await this.userProfilesRepository.findOne({ where: { id } });
+    const userProfiletoUpdate = await this.userProfilesRepository.findOne({
+      where: { id },
+    });
 
-    if(!userProfiletoUpdate) {
+    if (!userProfiletoUpdate) {
       throw new NotFoundException(MessageName.USER);
     }
 
     Object.assign(userProfiletoUpdate, updateUserProfileDto);
     return this.userProfilesRepository.save(userProfiletoUpdate);
+  }
+
+  async findProfileByAccountId(accountId: number): Promise<UserProfilesEntity> {
+    return this.userProfilesRepository.findOneBy({
+      account: { id: accountId },
+    });
   }
 }

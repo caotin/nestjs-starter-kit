@@ -9,6 +9,9 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { AccountEntity } from './entites/accounts';
 import { CreateUserProfileDto } from './dto/create-user-profile.dto';
 import { UserProfilesEntity } from './entites/user-profiles';
+import { NotFoundError, async } from 'rxjs';
+import { UserProfileService } from './user-profile.service';
+import { MESSAGES } from '@nestjs/core/constants';
 
 @Injectable()
 export class UsersService extends BaseService<
@@ -19,13 +22,14 @@ export class UsersService extends BaseService<
   constructor(
     @InjectRepository(AccountEntity)
     private accountRepository: Repository<AccountEntity>,
+    private userProfileService: UserProfileService,
   ) {
     super(MessageName.USER, accountRepository);
   }
 
   async createAccountWithTransaction<T>(
     createUserDto: T,
-    manager: EntityManager
+    manager: EntityManager,
   ) {
     return await manager.save(AccountEntity, createUserDto);
   }
@@ -61,5 +65,29 @@ export class UsersService extends BaseService<
 
   async findByEmail(email: string): Promise<AccountEntity> {
     return await this.accountRepository.findOneBy({ email });
+  }
+
+  async searchUserByNameAndEmail(conditionText: string) {
+    const account = await this.accountRepository
+      .createQueryBuilder('acc')
+      .select([
+        'acc.name',
+        'acc.email',
+        'pr.phone',
+        'pr.avatar',
+        'pr.address',
+        'pr.dob',
+        'pr.fullname',
+        'pr.gender',
+      ])
+      .innerJoin(UserProfilesEntity, 'pr', 'acc.id = pr.accountId')
+      .where('acc.name LIKE :keyword OR acc.email LIKE :keyword', {
+        keyword: `%${conditionText}%`,
+      })
+      .getRawMany();
+
+    if (!account) throw new NotFoundException(MessageName.USER);
+
+    return account;
   }
 }
