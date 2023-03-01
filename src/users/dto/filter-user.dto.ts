@@ -3,7 +3,7 @@ import { OrderType } from '@enums/order';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import { IsEnum, IsOptional } from 'class-validator';
-import { AccountEntity } from '../entites/accounts';
+import { AccountEntity } from '../entities/accounts';
 
 class OrderDto {
   @ApiPropertyOptional({ enum: OrderType, name: 'order[name]' })

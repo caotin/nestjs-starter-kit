@@ -17,7 +17,7 @@ import {
 } from './dto/auth.dto';
 import { StripeService } from '@/stripe/stripe.service';
 import { CreateCustomerDto } from '@/stripe/dto/create-customer.dto';
-import { AccountEntity } from '@/users/entites/accounts';
+import { AccountEntity } from '@/users/entities/accounts';
 import { TransactionManager } from '@/common/transaction-manager';
 import { EntityManager } from 'typeorm';
 import { UserProfileService } from '@/users/user-profile.service';

@@ -7,6 +7,11 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { config } from '../ormconfig';
 import { StripeModule } from './stripe/stripe.module';
+import { BankAccountsModule } from './bank-accounts/bank-accounts.module';
+import { CardsModule } from './cards/cards.module';
+import { LocalBanksModule } from './local-banks/local-banks.module';
+import { TransactionsModule } from './transactions/transactions.module';
+import { BalanceHistoriesModule } from './balance-histories/balance-histories.module';
 
 @Module({
   imports: [
@@ -18,6 +23,11 @@ import { StripeModule } from './stripe/stripe.module';
     UsersModule,
     AuthModule,
     StripeModule,
+    BankAccountsModule,
+    CardsModule,
+    LocalBanksModule,
+    TransactionsModule,
+    BalanceHistoriesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -16,7 +16,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
 import { CreateUserProfileDto } from './dto/create-user-profile.dto';
 import { User } from '@decorators/user.decorator';
-import { AccountEntity } from './entites/accounts';
+import { AccountEntity } from './entities/accounts';
 import { UserProfileService } from './user-profile.service';
 import { UpdateUserProfileDto } from './dto/update-user-profile.dto';
 

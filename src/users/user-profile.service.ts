@@ -1,12 +1,12 @@
 import { BaseService, Pagination } from '@/common/base.service';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { UserProfilesEntity } from './entites/user-profiles';
+import { UserProfilesEntity } from './entities/user-profiles';
 import { CreateUserProfileDto } from './dto/create-user-profile.dto';
 import { UpdateUserProfileDto } from './dto/update-user-profile.dto';
 import { EntityManager, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MessageName } from '@/message';
-import { AccountEntity } from './entites/accounts';
+import { AccountEntity } from './entities/accounts';
 import { NotFoundException } from '@exceptions/not-found.exception';
 
 @Injectable()
