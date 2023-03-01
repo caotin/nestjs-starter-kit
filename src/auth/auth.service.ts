@@ -111,18 +111,18 @@ export class AuthService {
           account = await this.usersService.createAccountWithTransaction(
             {
               ...userGG,
-              token_stripe: customerStripe.id
+              token_stripe: customerStripe.id,
             },
-            entityManager
-          )
+            entityManager,
+          );
 
           await this.userProfileService.createWithTransaction(
             {
-              account: account
+              account: account,
             },
-            entityManager
+            entityManager,
           );
-        }
+        },
       );
     }
 
@@ -150,18 +150,18 @@ export class AuthService {
           account = await this.usersService.createAccountWithTransaction(
             {
               ...userFB,
-              token_stripe: customerStripe.id
+              token_stripe: customerStripe.id,
             },
-            entityManager
+            entityManager,
           );
 
           await this.userProfileService.createWithTransaction(
             {
-              account: account
+              account: account,
             },
-            entityManager
+            entityManager,
           );
-        }
+        },
       );
     }
 
