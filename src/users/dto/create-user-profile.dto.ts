@@ -1,7 +1,7 @@
 import { GenderType } from '@enums/gender';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsDateString, IsString, ValidateIf } from 'class-validator';
-import { AccountEntity } from '../entites/accounts';
+import { AccountEntity } from '../entities/accounts';
 
 export class CreateUserProfileDto {
   @ApiProperty()

@@ -10,7 +10,7 @@ import {
 } from './dto/auth.dto';
 import { Auth } from '@decorators/auth.decorator';
 import { User } from '@decorators/user.decorator';
-import { AccountEntity } from '@/users/entites/accounts';
+import { AccountEntity } from '@/users/entities/accounts';
 import { Serialize } from '@decorators/Serialize.decorator';
 import { ReturnAuthDto } from './dto/return-auth.dto';
 import { AuthGuard } from '@nestjs/passport';
