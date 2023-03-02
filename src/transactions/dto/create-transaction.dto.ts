@@ -2,17 +2,17 @@ import { BankAccountEntity } from '@/bank-accounts/entities/bank-account';
 import { CardEntity } from '@/cards/entities/card';
 import { LocalBankEntity } from '@/local-banks/entities/local-bank';
 import { AccountEntity } from '@/users/entities/accounts';
+import { StatusType } from '@enums/status';
+import { TransactionType } from '@enums/transaction';
 import { IsString } from 'class-validator';
 
 export class CreateTransactionDto {
   @IsString()
   amount: string;
 
-  @IsString()
-  status: string;
+  status: StatusType;
 
-  @IsString()
-  type_transaction: string;
+  type_transaction: TransactionType;
 
   notes?: string;
 
