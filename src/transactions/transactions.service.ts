@@ -57,7 +57,9 @@ export class TransactionsService extends BaseService<
     const [userTo, userFrom] = await Promise.all([userToFind, userFromFind]);
 
     if (!userTo) {
-      throw new NotFoundException(MessageName.USER);
+      throw new NotFoundException(
+        `Not found user with id ${createTransferDto.to}` as MessageName.USER,
+      );
     }
 
     //  get balance and update balance value
