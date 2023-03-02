@@ -30,6 +30,11 @@ export class UsersController {
     private readonly userProfileService: UserProfileService,
   ) {}
 
+  @Get('profile')
+  getInforUserHomeScreen(@User() account: AccountEntity) {
+    return this.usersService.getProfileUser(account.id);
+  }
+
   @Get('search')
   searchUser(@Query('text') text: string) {
     return this.usersService.searchUserByNameAndEmail(text);

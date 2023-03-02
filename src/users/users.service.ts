@@ -12,6 +12,7 @@ import { UserProfilesEntity } from './entities/user-profiles';
 import { NotFoundError, async } from 'rxjs';
 import { UserProfileService } from './user-profile.service';
 import { MESSAGES } from '@nestjs/core/constants';
+import { BalanceHistoriesService } from '@/balance-histories/balance-histories.service';
 
 @Injectable()
 export class UsersService extends BaseService<
@@ -23,6 +24,7 @@ export class UsersService extends BaseService<
     @InjectRepository(AccountEntity)
     private accountRepository: Repository<AccountEntity>,
     private userProfileService: UserProfileService,
+    private balanceService: BalanceHistoriesService,
   ) {
     super(MessageName.USER, accountRepository);
   }
@@ -89,5 +91,29 @@ export class UsersService extends BaseService<
     if (!account) throw new NotFoundException(MessageName.USER);
 
     return account;
+  }
+
+  async getProfileUser(accountId: number) {
+    const accountPromise = this.accountRepository.findOneBy({ id: accountId });
+    const userInforPromise =
+      this.userProfileService.findProfileByAccountId(accountId);
+
+    const [account, userInfor] = await Promise.all([
+      accountPromise,
+      userInforPromise,
+    ]);
+
+    const response = {
+      email: account.email,
+      name: account.name,
+      avatar: userInfor.avatar,
+      fullname: userInfor.fullname,
+      gender: userInfor.gender,
+      phone: userInfor.phone,
+      address: userInfor.address,
+      dob: userInfor.dob,
+    };
+
+    return response;
   }
 }
