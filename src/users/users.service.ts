@@ -81,8 +81,8 @@ export class UsersService extends BaseService<
         'pr.gender',
       ])
       .innerJoin(UserProfilesEntity, 'pr', 'acc.id = pr.accountId')
-      .where('acc.name ILIKE :keyword OR acc.email LIKE :keyword', {
-        keyword: `%${conditionText}%`,
+      .where('LOWER(acc.name) LIKE :keyword OR acc.email LIKE :keyword', {
+        keyword: `%${conditionText.toLowerCase()}%`,
       })
       .getRawMany();
 

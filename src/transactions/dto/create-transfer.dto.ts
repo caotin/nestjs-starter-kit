@@ -12,6 +12,7 @@ export class CreateTransferDto {
   @IsString()
   amount: string;
 
-  @ApiProperty({ nullable: true })
-  notes?: string;
+  @ApiProperty()
+  @IsString()
+  notes: string;
 }
