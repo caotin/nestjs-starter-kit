@@ -5,9 +5,13 @@ import { UsersService } from './users.service';
 import { UserProfilesEntity } from './entities/user-profiles';
 import { AccountEntity } from './entities/accounts';
 import { UserProfileService } from './user-profile.service';
+import { BalanceHistoriesModule } from '@/balance-histories/balance-histories.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UserProfilesEntity, AccountEntity])],
+  imports: [
+    TypeOrmModule.forFeature([UserProfilesEntity, AccountEntity]),
+    BalanceHistoriesModule,
+  ],
   controllers: [UsersController],
   providers: [UsersService, UserProfileService],
   exports: [UsersService, UserProfileService],
