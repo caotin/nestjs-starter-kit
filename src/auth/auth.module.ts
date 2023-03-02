@@ -9,9 +9,15 @@ import { StripeModule } from '@/stripe/stripe.module';
 import { GoogleStrategy } from './strategies/google.strategy';
 import { FackebookStrategy } from './strategies/facebook.strategy';
 import { TransactionManager } from '@/common/transaction-manager';
+import { BalanceHistoriesModule } from '@/balance-histories/balance-histories.module';
 
 @Module({
-  imports: [JwtModule.register({}), UsersModule, StripeModule],
+  imports: [
+    JwtModule.register({}),
+    UsersModule,
+    StripeModule,
+    BalanceHistoriesModule,
+  ],
   controllers: [AuthController],
   providers: [
     AuthService,

@@ -21,6 +21,9 @@ import { AccountEntity } from '@/users/entities/accounts';
 import { TransactionManager } from '@/common/transaction-manager';
 import { EntityManager } from 'typeorm';
 import { UserProfileService } from '@/users/user-profile.service';
+import { BalanceHistoriesService } from '@/balance-histories/balance-histories.service';
+import { CreateBalanceDto } from '@/balance-histories/dto/create-balance.dto';
+import { StatusType } from '@enums/status';
 
 @Injectable()
 export class AuthService {
@@ -31,6 +34,7 @@ export class AuthService {
     private stripeService: StripeService,
     private transactionManager: TransactionManager,
     private userProfileService: UserProfileService,
+    private balanceHistoriesService: BalanceHistoriesService,
   ) {}
 
   async signUp(createUserDto: CreateUserDto): Promise<any> {
@@ -66,6 +70,8 @@ export class AuthService {
           },
           entityManager,
         );
+
+        await this.createBalanceAfterSignup(newAccount, entityManager);
       },
     );
 
@@ -122,6 +128,8 @@ export class AuthService {
             },
             entityManager,
           );
+
+          await this.createBalanceAfterSignup(account, entityManager);
         },
       );
     }
@@ -161,6 +169,8 @@ export class AuthService {
             },
             entityManager,
           );
+
+          await this.createBalanceAfterSignup(account, entityManager);
         },
       );
     }
@@ -172,6 +182,20 @@ export class AuthService {
       ...tokens,
       account,
     };
+  }
+
+  async createBalanceAfterSignup(
+    account: AccountEntity,
+    entityManager: EntityManager,
+  ) {
+    return await this.balanceHistoriesService.createWithTransaction(
+      {
+        account: account,
+        status: StatusType.COMPLETED,
+        value: '0',
+      } as CreateBalanceDto,
+      entityManager,
+    );
   }
 
   async logout(userId: number) {

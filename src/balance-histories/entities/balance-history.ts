@@ -18,6 +18,7 @@ export class BalanceHistoriesEntity extends BaseEntity {
   @ManyToOne(
     () => TransactionEntity,
     (transaction) => transaction.balance_histories,
+    { nullable: true },
   )
-  transaction: TransactionEntity;
+  transaction?: TransactionEntity;
 }
