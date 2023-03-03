@@ -21,7 +21,7 @@ import { UserProfileService } from './user-profile.service';
 import { UpdateUserProfileDto } from './dto/update-user-profile.dto';
 import { ReturnUserProfileDto } from './dto/return-user-profile.dto';
 import { Serialize } from '@decorators/Serialize.decorator';
-import { ReturnSearchUserDtp } from './dto/return-search-user.dto';
+import { ReturnSearchUserDto } from './dto/return-search-user.dto';
 
 // @ApiBearerAuth()
 @ApiTags('users')
@@ -40,7 +40,7 @@ export class UsersController {
   }
 
   @Get('search')
-  @Serialize(ReturnSearchUserDtp)
+  @Serialize(ReturnSearchUserDto)
   searchUser(
     @Query('text') text: string,
     @Query() filterUserDto: FilterUserDto,

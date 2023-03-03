@@ -1,7 +1,7 @@
 import { Expose, Type } from 'class-transformer';
 import { ReturnUserProfileDto } from './return-user-profile.dto';
 
-export class ReturnSearchUserDtp {
+export class ReturnSearchUserDto {
   @Expose()
   @Type(() => ReturnUserProfileDto)
   data: ReturnUserProfileDto[];
