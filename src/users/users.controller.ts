@@ -23,9 +23,9 @@ import { ReturnUserProfileDto } from './dto/return-user-profile.dto';
 import { Serialize } from '@decorators/Serialize.decorator';
 import { ReturnSearchUserDto } from './dto/return-search-user.dto';
 
-// @ApiBearerAuth()
+@ApiBearerAuth()
 @ApiTags('users')
-// @Auth()
+@Auth()
 @Controller('users')
 export class UsersController {
   constructor(
