@@ -1,5 +1,5 @@
 import { BaseService, Pagination } from '@/common/base.service';
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, forwardRef } from '@nestjs/common';
 import { TransactionEntity } from './entities/transaction';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
@@ -197,7 +197,7 @@ export class TransactionsService extends BaseService<
 
   async handleDepositFail(transactionId: number) {
     const transaction = await this.transactionRepository.findOne({ where: { id: transactionId } });
-    transaction.status = StatusType.COMPLETED;
+    transaction.status = StatusType.FAILED;
     await this.transactionRepository.save(transaction);
     const balanceHistory = await this.balanceService.findBalanceHistoryByTransaction(transaction);
     await this.balanceService.removeBalanceHistory(balanceHistory);

@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, Inject, forwardRef } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import Stripe from 'stripe';
@@ -8,12 +8,16 @@ import { MessageName } from '@/message';
 import { CreateCardDto } from '@/cards/dtos/create-card.dto';
 import { CreateBankPaymentMethodDto } from '@/bank-accounts/dtos/create-bank.dto';
 import { PaymentMethods } from '@enums/paymentMethods';
+import { TransactionsService } from '@/transactions/transactions.service';
 
 @Injectable()
 export class StripeService {
   private readonly stripe: Stripe;
 
-  constructor(private readonly configService: ConfigService) {
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly transactionService: TransactionsService,
+  ) {
     this.stripe = new Stripe(
       this.configService.get(STRIPE_TYPE.STRIPE_SECRET_KEY),
       {
@@ -45,7 +49,7 @@ export class StripeService {
       }
     });
 
-    if(!cardPayment) {
+    if (!cardPayment) {
       throw new IncorrectException(MessageName.USER);
     }
 
@@ -53,7 +57,7 @@ export class StripeService {
   }
 
   async createBankPayment(createBankPaymentDto: CreateBankPaymentMethodDto) {
-    const { accountHolderName ,accountHolderType, accountNumber, routingNumber } = createBankPaymentDto;
+    const { accountHolderName, accountHolderType, accountNumber, routingNumber } = createBankPaymentDto;
 
     const bankPayment = await this.stripe.paymentMethods.create({
       type: PaymentMethods.USBANK,
@@ -67,7 +71,7 @@ export class StripeService {
       }
     });
 
-    if(!bankPayment) {
+    if (!bankPayment) {
       throw new IncorrectException(MessageName.USER);
     }
 
@@ -82,10 +86,48 @@ export class StripeService {
       }
     );
 
-    if(!attachPaymentToAcc) {
+    if (!attachPaymentToAcc) {
       throw new InternalServerErrorException();
     }
 
     return attachPaymentToAcc;
   }
+
+  async createPaymentIntent(amount: number, currency: string, paymentMethodToken: string, custometToken: string, transactionId: number) {
+    const paymentIntent = await this.stripe.paymentIntents.create({
+      amount,
+      currency,
+      customer: custometToken,
+      payment_method: paymentMethodToken,
+      confirm: true,
+      metadata: {
+        transactionId: transactionId.toString()
+      }
+    });
+
+    return paymentIntent;
+  }
+
+  async getPaymentIntent(id: string) {
+    return this.stripe.paymentIntents.retrieve(
+      id
+    );
+  }
+
+  // async handlePaymentIntentSuccess(paymentIntent: Stripe.PaymentIntent) {
+  //   const { transactionId } = paymentIntent.metadata;
+  //   await this.transactionService.handleDepositComplete(parseInt(transactionId));
+  //   return {
+  //     message: "update transaction and balance history success"
+  //   }
+  // }
+
+  // async handlePaymentIntentFail(paymentIntent: Stripe.PaymentIntent) {
+  //   const { transactionId } = paymentIntent.metadata;
+  //   await this.transactionService.handleDepositFail(parseInt(transactionId));
+
+  //   return {
+  //     message: "update transaction and delete the record balance history success"
+  //   }
+  // }
 }

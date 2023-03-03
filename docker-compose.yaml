@@ -15,9 +15,14 @@ services:
   stripe-cli:
     image: stripe/stripe-cli
     container_name: stripe-cli
-    command: "listen --api-key ${STRIPE_API_KEY} --device-name ${STRIPE_DEVICE_NAME} --forward-to localhost:3001/api/webhook/"
+    command: "listen --api-key ${STRIPE_API_KEY} --device-name ${STRIPE_DEVICE_NAME} --forward-to http://localhost:3001/api/webhook/"
+    environment: 
+      STRIPE_WEBHOOK_SECRET: sk_test_51MZSydDzfSikLuOraup58wsTYSi51DR1sTOkK0DRNc1O3qB6CCy9Wbs9OMM34F6jQZkrucRPZpU9u64jPzEputNO00dPSs1Rty
     env_file:
       - .env
+    depends_on: 
+      - api
+    network_mode: host
   api:
     build: .
     restart: always
