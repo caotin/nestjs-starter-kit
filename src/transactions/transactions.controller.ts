@@ -6,6 +6,7 @@ import { User } from '@decorators/user.decorator';
 import { AccountEntity } from '@/users/entities/accounts';
 import { StatusType } from '@enums/status';
 import { TransactionsService } from './transactions.service';
+import { DepositWithCardDto } from './dto/deposit-transaction.dto';
 
 @ApiBearerAuth()
 @ApiTags('transactions')
@@ -21,5 +22,10 @@ export class TransactionsController {
   ) {
     createTransferDto.from = account.id;
     return this.transactionsService.transfer(createTransferDto);
+  }
+
+  @Post('deposit')
+  async deposit(@Body() depositWithCardDto: DepositWithCardDto, @User() account: AccountEntity) {
+    return this.transactionsService.deposit(depositWithCardDto, account);
   }
 }

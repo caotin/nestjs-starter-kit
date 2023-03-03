@@ -6,6 +6,8 @@ import { UpdateBalanceDto } from './dto/update-balance.dto';
 import { EntityManager, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MessageName } from '@/message';
+import { StatusType } from '@enums/status';
+import { TransactionEntity } from '@/transactions/entities/transaction';
 
 @Injectable()
 export class BalanceHistoriesService extends BaseService<
@@ -35,7 +37,10 @@ export class BalanceHistoriesService extends BaseService<
 
   async getBalanceLatest(accountId: number) {
     return await this.balanceRepository.findOne({
-      where: { account: { id: accountId } },
+      where: { 
+        account: { id: accountId },
+        status: StatusType.COMPLETED 
+      },
       order: {
         createdAt: 'DESC',
       },
@@ -51,5 +56,26 @@ export class BalanceHistoriesService extends BaseService<
     }
 
     return check;
+  }
+
+  async findBalanceHistoryByTransaction(transaction: TransactionEntity) {
+    return this.balanceRepository.findOne({
+      where: {
+        transaction: {
+          id: transaction.id
+        }
+      },
+      relations: {
+        transaction: true
+      }
+    })
+  }
+
+  async saveBalanceHistory(balanceHistory: BalanceHistoriesEntity) {
+    return this.balanceRepository.save(balanceHistory);
+  }
+
+  async removeBalanceHistory(balanceHistory: BalanceHistoriesEntity) {
+   return this.balanceRepository.remove(balanceHistory);
   }
 }

@@ -12,7 +12,7 @@ import { AccountEntity } from '@/users/entities/accounts';
 export class BalanceHistoriesController {
   constructor(private readonly balanceService: BalanceHistoriesService) {}
 
-  @Get('me')
+  @Get()
   getBalanceLatestMe(@User() account: AccountEntity) {
     return this.balanceService.getBalanceLatest(account.id);
   }

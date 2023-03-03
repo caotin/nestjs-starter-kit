@@ -19,6 +19,9 @@ import { User } from '@decorators/user.decorator';
 import { AccountEntity } from './entities/accounts';
 import { UserProfileService } from './user-profile.service';
 import { UpdateUserProfileDto } from './dto/update-user-profile.dto';
+import { ReturnUserProfileDto } from './dto/return-user-profile.dto';
+import { Serialize } from '@decorators/Serialize.decorator';
+import { ReturnSearchUserDto } from './dto/return-search-user.dto';
 
 @ApiBearerAuth()
 @ApiTags('users')
@@ -31,13 +34,18 @@ export class UsersController {
   ) {}
 
   @Get('profile')
+  @Serialize(ReturnUserProfileDto)
   getInforUserHomeScreen(@User() account: AccountEntity) {
     return this.usersService.getProfileUser(account.id);
   }
 
   @Get('search')
-  searchUser(@Query('text') text: string) {
-    return this.usersService.searchUserByNameAndEmail(text);
+  @Serialize(ReturnSearchUserDto)
+  searchUser(
+    @Query('text') text: string,
+    @Query() filterUserDto: FilterUserDto,
+  ) {
+    return this.usersService.searchUserByNameAndEmail(text, filterUserDto);
   }
 
   @Post()
