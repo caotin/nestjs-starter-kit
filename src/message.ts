@@ -8,4 +8,5 @@ export const MessageError = {
 
 export enum MessageName {
   USER = 'user',
+  CARD = 'card'
 }

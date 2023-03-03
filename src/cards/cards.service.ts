@@ -6,6 +6,8 @@ import { CreateCardDto } from './dtos/create-card.dto';
 import { AccountEntity } from '@/users/entities/accounts';
 import { StripeService } from '@/stripe/stripe.service';
 import Stripe from 'stripe';
+import { NotFoundException } from '@exceptions/not-found.exception';
+import { MessageName } from '@/message';
 
 @Injectable()
 export class CardsService {
@@ -15,6 +17,20 @@ export class CardsService {
     ) {
     }
 
+
+    async findCardMethodById(cardId: number) {
+        const cardMethod = await this.cardRepository.findOne({
+            where: {
+                id: cardId
+            }
+        });
+
+        if(!cardMethod) {
+            throw new NotFoundException(MessageName.CARD);
+        }
+
+        return cardMethod
+    }
 
     async createCardPayment(createCardDto: CreateCardDto, account: AccountEntity) {
         const { token_stripe } = account;
