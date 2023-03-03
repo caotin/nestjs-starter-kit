@@ -19,6 +19,8 @@ import { User } from '@decorators/user.decorator';
 import { AccountEntity } from './entities/accounts';
 import { UserProfileService } from './user-profile.service';
 import { UpdateUserProfileDto } from './dto/update-user-profile.dto';
+import { ReturnUserProfileDto } from './dto/return-user-profile.dto';
+import { Serialize } from '@decorators/Serialize.decorator';
 
 @ApiBearerAuth()
 @ApiTags('users')
@@ -31,6 +33,7 @@ export class UsersController {
   ) {}
 
   @Get('profile')
+  @Serialize(ReturnUserProfileDto)
   getInforUserHomeScreen(@User() account: AccountEntity) {
     return this.usersService.getProfileUser(account.id);
   }

@@ -8,6 +8,7 @@ import { CardEntity } from '@/cards/entities/card';
 import { LocalBankEntity } from '@/local-banks/entities/local-bank';
 import { TransactionEntity } from '@/transactions/entities/transaction';
 import { BalanceHistoriesEntity } from '@/balance-histories/entities/balance-history';
+import { Exclude } from 'class-transformer';
 
 @Entity('accounts')
 export class AccountEntity extends BaseEntity {
@@ -19,12 +20,15 @@ export class AccountEntity extends BaseEntity {
   name: string;
 
   @Column({ nullable: true })
+  @Exclude()
   password: string;
 
   @Column({ nullable: true })
+  @Exclude()
   pin: string;
 
   @Column({ nullable: true })
+  @Exclude()
   token_stripe: string;
 
   @Column({ nullable: true })
@@ -37,9 +41,11 @@ export class AccountEntity extends BaseEntity {
   apple_id: string;
 
   @Column({ nullable: true })
+  @Exclude()
   secret_key_2fa: string;
 
   @Column({ nullable: true })
+  @Exclude()
   refreshToken: string;
 
   comparePassword(password: string) {

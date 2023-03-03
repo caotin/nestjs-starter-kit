@@ -103,17 +103,9 @@ export class UsersService extends BaseService<
       userInforPromise,
     ]);
 
-    const response = {
-      email: account.email,
-      name: account.name,
-      avatar: userInfor.avatar,
-      fullname: userInfor.fullname,
-      gender: userInfor.gender,
-      phone: userInfor.phone,
-      address: userInfor.address,
-      dob: userInfor.dob,
+    return {
+      ...account,
+      ...userInfor,
     };
-
-    return response;
   }
 }
