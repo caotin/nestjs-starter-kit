@@ -8,6 +8,9 @@ export class ReturnAccountDto {
   email: string;
 
   @Expose()
+  name: string;
+
+  @Expose()
   facebook_id: string;
 
   @Expose()
