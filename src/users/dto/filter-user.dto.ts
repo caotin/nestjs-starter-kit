@@ -10,9 +10,9 @@ class OrderDto {
   @IsEnum(OrderType)
   name?: OrderType;
 
-  @ApiPropertyOptional({ enum: OrderType, name: 'order[username]' })
+  @ApiPropertyOptional({ enum: OrderType, name: 'order[email]' })
   @IsEnum(OrderType)
-  username?: OrderType;
+  email?: OrderType;
 
   @ApiPropertyOptional({ enum: OrderType, name: 'order[createdAt]' })
   @IsEnum(OrderType)

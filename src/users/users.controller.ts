@@ -21,10 +21,11 @@ import { UserProfileService } from './user-profile.service';
 import { UpdateUserProfileDto } from './dto/update-user-profile.dto';
 import { ReturnUserProfileDto } from './dto/return-user-profile.dto';
 import { Serialize } from '@decorators/Serialize.decorator';
+import { ReturnSearchUserDtp } from './dto/return-search-user.dto';
 
-@ApiBearerAuth()
+// @ApiBearerAuth()
 @ApiTags('users')
-@Auth()
+// @Auth()
 @Controller('users')
 export class UsersController {
   constructor(
@@ -39,8 +40,12 @@ export class UsersController {
   }
 
   @Get('search')
-  searchUser(@Query('text') text: string) {
-    return this.usersService.searchUserByNameAndEmail(text);
+  @Serialize(ReturnSearchUserDtp)
+  searchUser(
+    @Query('text') text: string,
+    @Query() filterUserDto: FilterUserDto,
+  ) {
+    return this.usersService.searchUserByNameAndEmail(text, filterUserDto);
   }
 
   @Post()

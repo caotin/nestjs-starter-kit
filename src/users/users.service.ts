@@ -69,28 +69,36 @@ export class UsersService extends BaseService<
     return await this.accountRepository.findOneBy({ email });
   }
 
-  async searchUserByNameAndEmail(conditionText: string) {
-    const account = await this.accountRepository
+  async searchUserByNameAndEmail(
+    conditionText: string,
+    filterUserDto: FilterUserDto,
+  ): Promise<Pagination<AccountEntity>> {
+    const queryBuilder = this.accountRepository
       .createQueryBuilder('acc')
-      .select([
-        'acc.name',
-        'acc.email',
-        'pr.phone',
-        'pr.avatar',
-        'pr.address',
-        'pr.dob',
-        'pr.fullname',
-        'pr.gender',
-      ])
+      .select(['acc.*', 'pr.*'])
       .innerJoin(UserProfilesEntity, 'pr', 'acc.id = pr.accountId')
       .where('LOWER(acc.name) LIKE :keyword OR acc.email LIKE :keyword', {
         keyword: `%${conditionText.toLowerCase()}%`,
       })
-      .getRawMany();
+      .take(filterUserDto.limit)
+      .skip(filterUserDto.skip);
 
-    if (!account) throw new NotFoundException(MessageName.USER);
+    if (filterUserDto.order != undefined) {
+      const orderKeys = Object.keys(filterUserDto.order);
+      orderKeys.forEach((key) => {
+        const sortOrder = filterUserDto.order[key];
+        queryBuilder.orderBy(`acc.${key}`, sortOrder);
+      });
+    }
 
-    return account;
+    const accounts = await queryBuilder.getRawMany();
+
+    if (!accounts) throw new NotFoundException(MessageName.USER);
+
+    return {
+      data: accounts,
+      total: accounts.length,
+    };
   }
 
   async getProfileUser(accountId: number) {
