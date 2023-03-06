@@ -1,14 +1,17 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { CardsController } from './cards.controller';
 import { CardsService } from './cards.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CardEntity } from './entities/card';
-import { StripeService } from '@/stripe/stripe.service';
+import { StripeModule } from '@/stripe/stripe.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([CardEntity])],
+  imports: [
+    TypeOrmModule.forFeature([CardEntity]), 
+    forwardRef(() => StripeModule)
+  ],
   controllers: [CardsController],
-  providers: [CardsService, StripeService],
+  providers: [CardsService],
   exports: [CardsService],
 })
 export class CardsModule {}

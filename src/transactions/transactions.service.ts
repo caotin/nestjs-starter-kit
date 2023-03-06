@@ -1,5 +1,5 @@
 import { BaseService, Pagination } from '@/common/base.service';
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Inject, Injectable, forwardRef } from '@nestjs/common';
 import { TransactionEntity } from './entities/transaction';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
@@ -7,7 +7,6 @@ import { CreateTransferDto } from './dto/create-transfer.dto';
 import { UsersService } from '@/users/users.service';
 import { MessageName } from '@/message';
 import { InjectRepository } from '@nestjs/typeorm';
-import { TransactionRepositoryMetadataArgs } from 'typeorm/metadata-args/TransactionRepositoryMetadataArgs';
 import { EntityManager, Repository } from 'typeorm';
 import { BalanceHistoriesService } from '@/balance-histories/balance-histories.service';
 import { NotFoundException } from '@exceptions/not-found.exception';
@@ -19,7 +18,7 @@ import { AccountEntity } from '@/users/entities/accounts';
 import { CardsService } from '@/cards/cards.service';
 import { StripeService } from '@/stripe/stripe.service';
 import { Currency } from '@constants/currency';
-import { BalanceHistoriesEntity } from '@/balance-histories/entities/balance-history';
+import BigNumber from 'bignumber.js'; 
 
 @Injectable()
 export class TransactionsService extends BaseService<
@@ -34,6 +33,7 @@ export class TransactionsService extends BaseService<
     private readonly balanceService: BalanceHistoriesService,
     private readonly transactionManager: TransactionManager,
     private readonly cardService: CardsService,
+    @Inject(forwardRef(() => StripeService))
     private readonly stripeService: StripeService
   ) {
     super(MessageName.USER, transactionRepository);
@@ -157,20 +157,20 @@ export class TransactionsService extends BaseService<
         transaction.type_transaction = TransactionType.DEPOSIT;
         transaction.notes = `Deposit to app with amount: ${amount}`;
         transaction.card = cardPaymentMethod;
-    
+        
+        await this.transactionRepository.save(transaction);
         const latestBalanceHistory = await this.balanceService.getBalanceLatest(account.id);
-        const balance = latestBalanceHistory.value + amount;
+        const balance = BigNumber(latestBalanceHistory.value).plus(amount).toString();
         await this.balanceService.createWithTransaction(
           {
             account: account,
             status: StatusType.PENDING,
-            value: String(balance),
+            value: balance,
             transaction: transaction
           },
           entityManager
         );
         
-        await this.transactionRepository.save(transaction);
 
         paymenIntent = await this.stripeService.createPaymentIntent(amount, Currency.USD, cardPaymentMethod.token, token_stripe, transaction.id);
       }
@@ -184,6 +184,9 @@ export class TransactionsService extends BaseService<
 
   async handleDepositComplete(transactionId: number) {
     const transaction = await this.transactionRepository.findOne({ where: { id: transactionId } });
+    if(!transaction) {
+      throw new NotFoundException(MessageName.TRANSACTION);
+    }
     if(transaction.status !== StatusType.PENDING) {
       throw new Error("have wrong in handle deposit complete");
     }
@@ -197,7 +200,10 @@ export class TransactionsService extends BaseService<
 
   async handleDepositFail(transactionId: number) {
     const transaction = await this.transactionRepository.findOne({ where: { id: transactionId } });
-    transaction.status = StatusType.COMPLETED;
+    if(!transaction) {
+      throw new NotFoundException(MessageName.TRANSACTION)
+    }
+    transaction.status = StatusType.FAILED;
     await this.transactionRepository.save(transaction);
     const balanceHistory = await this.balanceService.findBalanceHistoryByTransaction(transaction);
     await this.balanceService.removeBalanceHistory(balanceHistory);

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TransactionsController } from './transactions.controller';
 import { TransactionsService } from './transactions.service';
 import { TransactionEntity } from './entities/transaction';
@@ -6,7 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from '@/users/users.module';
 import { BalanceHistoriesModule } from '@/balance-histories/balance-histories.module';
 import { TransactionManager } from '@/common/transaction-manager';
-import { StripeService } from '@/stripe/stripe.service';
+import { StripeModule } from '@/stripe/stripe.module';
 import { CardsModule } from '@/cards/cards.module';
 
 @Module({
@@ -14,10 +14,11 @@ import { CardsModule } from '@/cards/cards.module';
     TypeOrmModule.forFeature([TransactionEntity]),
     UsersModule,
     BalanceHistoriesModule,
-    CardsModule
+    CardsModule,
+    forwardRef(() => StripeModule)
   ],
   controllers: [TransactionsController],
-  providers: [TransactionsService, TransactionManager, StripeService],
+  providers: [TransactionsService, TransactionManager],
   exports: [TransactionsService],
 })
 export class TransactionsModule {}
