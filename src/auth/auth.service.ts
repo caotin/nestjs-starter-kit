@@ -53,7 +53,7 @@ export class AuthService {
           description: `Create account customer stripe of ${createUserDto.email}`,
         } as CreateCustomerDto);
 
-        const hash = this.hashData(createUserDto.password.trim());
+        const hash = this.hashData(createUserDto.password);
 
         newAccount = await this.usersService.createAccountWithTransaction(
           {

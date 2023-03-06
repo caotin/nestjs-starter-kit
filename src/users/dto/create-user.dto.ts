@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Transform, TransformFnParams } from 'class-transformer';
 import {
   IsEmail,
   IsNotEmpty,
@@ -12,7 +13,6 @@ export class CreateUserDto {
   @ApiProperty()
   @IsEmail()
   @IsNotEmpty()
-  @Matches(/^\S*$/, { message: 'Must not contain whitespace' })
   email: string;
 
   @ApiProperty()
@@ -20,13 +20,14 @@ export class CreateUserDto {
   @IsNotEmpty()
   @MaxLength(35)
   @MinLength(5)
-  @Matches(/^\S*$/, { message: 'Must not contain whitespace' })
+  @Transform(({ value }: TransformFnParams) => value?.replace(/\s/g, ''))
   name: string;
 
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
   @MinLength(8)
+  @Transform(({ value }: TransformFnParams) => value?.replace(/\s/g, ''))
   @Matches(/[A-Z]/, { message: 'At least one upper case' })
   @Matches(/[a-z]/, { message: 'At least one lower case' })
   @Matches(/[0-9]/, { message: 'At least one digit' })
