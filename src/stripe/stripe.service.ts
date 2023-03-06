@@ -117,19 +117,12 @@ export class StripeService {
 
   async handlePaymentIntentSuccess(paymentIntent: Stripe.PaymentIntent) {
     const { transactionId } = paymentIntent.metadata;
-    await this.transactionService.handleDepositComplete(parseInt(transactionId));
-    return {
-      message: "update transaction and balance history success"
-    }
+    return this.transactionService.handleDepositComplete(parseInt(transactionId));
   }
 
   async handlePaymentIntentFail(paymentIntent: Stripe.PaymentIntent) {
     const { transactionId } = paymentIntent.metadata;
-    await this.transactionService.handleDepositFail(parseInt(transactionId));
-
-    return {
-      message: "update transaction and delete the record balance history success"
-    }
+    return this.transactionService.handleDepositFail(parseInt(transactionId));
   }
 
   // async constructEvent(sig: any, requestBody: any) {
