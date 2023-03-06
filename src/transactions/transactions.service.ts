@@ -7,7 +7,6 @@ import { CreateTransferDto } from './dto/create-transfer.dto';
 import { UsersService } from '@/users/users.service';
 import { MessageName } from '@/message';
 import { InjectRepository } from '@nestjs/typeorm';
-import { TransactionRepositoryMetadataArgs } from 'typeorm/metadata-args/TransactionRepositoryMetadataArgs';
 import { EntityManager, Repository } from 'typeorm';
 import { BalanceHistoriesService } from '@/balance-histories/balance-histories.service';
 import { NotFoundException } from '@exceptions/not-found.exception';
@@ -19,7 +18,7 @@ import { AccountEntity } from '@/users/entities/accounts';
 import { CardsService } from '@/cards/cards.service';
 import { StripeService } from '@/stripe/stripe.service';
 import { Currency } from '@constants/currency';
-import { BalanceHistoriesEntity } from '@/balance-histories/entities/balance-history';
+import BigNumber from 'bignumber.js'; 
 
 @Injectable()
 export class TransactionsService extends BaseService<
@@ -161,7 +160,7 @@ export class TransactionsService extends BaseService<
         
         await this.transactionRepository.save(transaction);
         const latestBalanceHistory = await this.balanceService.getBalanceLatest(account.id);
-        const balance = BigInt(latestBalanceHistory.value) + BigInt(amount);
+        const balance = BigNumber(latestBalanceHistory.value).plus(BigNumber(amount));
         await this.balanceService.createWithTransaction(
           {
             account: account,
