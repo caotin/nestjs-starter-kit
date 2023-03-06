@@ -4,15 +4,14 @@ import { CardsService } from './cards.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CardEntity } from './entities/card';
 import { StripeModule } from '@/stripe/stripe.module';
-import { StripeService } from '@/stripe/stripe.service';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([CardEntity]), 
-    StripeModule
+    forwardRef(() => StripeModule)
   ],
   controllers: [CardsController],
-  providers: [CardsService, StripeService],
+  providers: [CardsService],
   exports: [CardsService],
 })
 export class CardsModule {}

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CardEntity } from './entities/card';
 import { Repository } from 'typeorm';
@@ -13,6 +13,7 @@ import { MessageName } from '@/message';
 export class CardsService {
     constructor(
         @InjectRepository(CardEntity) private cardRepository: Repository<CardEntity>,
+        @Inject(forwardRef(() => StripeService))
         private stripeService: StripeService
     ) {
     }
