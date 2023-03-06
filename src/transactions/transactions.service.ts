@@ -160,12 +160,12 @@ export class TransactionsService extends BaseService<
         
         await this.transactionRepository.save(transaction);
         const latestBalanceHistory = await this.balanceService.getBalanceLatest(account.id);
-        const balance = BigNumber(latestBalanceHistory.value).plus(BigNumber(amount));
+        const balance = BigNumber(latestBalanceHistory.value).plus(amount).toString();
         await this.balanceService.createWithTransaction(
           {
             account: account,
             status: StatusType.PENDING,
-            value: String(balance),
+            value: balance,
             transaction: transaction
           },
           entityManager
