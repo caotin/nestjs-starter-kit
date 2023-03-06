@@ -161,7 +161,7 @@ export class TransactionsService extends BaseService<
         
         await this.transactionRepository.save(transaction);
         const latestBalanceHistory = await this.balanceService.getBalanceLatest(account.id);
-        const balance =  parseInt(latestBalanceHistory.value) + amount;
+        const balance = BigInt(latestBalanceHistory.value) + BigInt(amount);
         await this.balanceService.createWithTransaction(
           {
             account: account,
@@ -185,6 +185,9 @@ export class TransactionsService extends BaseService<
 
   async handleDepositComplete(transactionId: number) {
     const transaction = await this.transactionRepository.findOne({ where: { id: transactionId } });
+    if(!transaction) {
+      throw new NotFoundException(MessageName.TRANSACTION);
+    }
     if(transaction.status !== StatusType.PENDING) {
       throw new Error("have wrong in handle deposit complete");
     }
@@ -198,6 +201,9 @@ export class TransactionsService extends BaseService<
 
   async handleDepositFail(transactionId: number) {
     const transaction = await this.transactionRepository.findOne({ where: { id: transactionId } });
+    if(!transaction) {
+      throw new NotFoundException(MessageName.TRANSACTION)
+    }
     transaction.status = StatusType.FAILED;
     await this.transactionRepository.save(transaction);
     const balanceHistory = await this.balanceService.findBalanceHistoryByTransaction(transaction);
