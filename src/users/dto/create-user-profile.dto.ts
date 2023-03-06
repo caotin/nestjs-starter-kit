@@ -1,37 +1,42 @@
 import { GenderType } from '@enums/gender';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDateString, IsString, ValidateIf } from 'class-validator';
+import {
+  IsDateString,
+  IsNotEmpty,
+  IsString,
+  ValidateIf,
+} from 'class-validator';
 import { AccountEntity } from '../entities/accounts';
 
 export class CreateUserProfileDto {
   @ApiProperty()
   @IsString()
-  @ValidateIf((object, value) => value !== null)
+  @IsNotEmpty()
   avatar?: string;
 
   @ApiProperty()
   @IsString()
-  @ValidateIf((object, value) => value !== null)
+  @IsNotEmpty()
   fullname?: string;
 
   @ApiProperty()
   @IsString()
-  @ValidateIf((object, value) => value !== null)
+  @IsNotEmpty()
   phone?: string;
 
   @ApiProperty()
   @IsString()
-  @ValidateIf((object, value) => value !== null)
+  @IsNotEmpty()
   address?: string | null;
 
   @ApiProperty()
   @IsString()
-  @ValidateIf((object, value) => value !== null)
+  @IsNotEmpty()
   gender?: GenderType | null;
 
   @ApiProperty()
   @IsDateString()
-  @ValidateIf((object, value) => value !== null)
+  @IsNotEmpty()
   dob?: Date;
 
   account?: AccountEntity;
