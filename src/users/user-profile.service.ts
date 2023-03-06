@@ -74,9 +74,15 @@ export class UserProfileService extends BaseService<
     return this.userProfilesRepository.save(userProfiletoUpdate);
   }
 
-  async findProfileByAccountId(accountId: number): Promise<UserProfilesEntity> {
-    return this.userProfilesRepository.findOneBy({
-      account: { id: accountId },
+  async findProfileByAccountId(
+    accountId: number,
+    cache: boolean,
+  ): Promise<UserProfilesEntity> {
+    return this.userProfilesRepository.findOne({
+      where: {
+        account: { id: accountId },
+      },
+      cache,
     });
   }
 }

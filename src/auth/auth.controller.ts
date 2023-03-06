@@ -16,6 +16,7 @@ import { ReturnAuthDto } from './dto/return-auth.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { RequestWithUser } from '@/common/interfaces/request-with-user.interface';
 import { Request } from 'express';
+import { UsersService } from '@/users/users.service';
 
 @ApiBearerAuth()
 @ApiTags('auth')

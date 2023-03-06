@@ -25,7 +25,6 @@ import { ReturnSearchUserDto } from './dto/return-search-user.dto';
 
 @ApiBearerAuth()
 @ApiTags('users')
-@Auth()
 @Controller('users')
 export class UsersController {
   constructor(
@@ -33,31 +32,45 @@ export class UsersController {
     private readonly userProfileService: UserProfileService,
   ) {}
 
+  @Get('check-email')
+  checkEmail(@Query('email') email: string) {
+    return this.usersService.checkEmailExist(email);
+  }
+
+  @Auth()
   @Get('profile')
   @Serialize(ReturnUserProfileDto)
   getInforUserHomeScreen(@User() account: AccountEntity) {
     return this.usersService.getProfileUser(account.id);
   }
 
+  @Auth()
   @Get('search')
   @Serialize(ReturnSearchUserDto)
-  searchUser(
+  async searchUser(
     @Query('text') text: string,
     @Query() filterUserDto: FilterUserDto,
   ) {
-    return this.usersService.searchUserByNameAndEmail(text, filterUserDto);
+    const data = await this.usersService.searchUserByNameAndEmail(
+      text,
+      filterUserDto,
+    );
+    return data;
   }
 
+  @Auth()
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }
 
+  @Auth()
   @Get()
   findAll(@Query() filterUserDto: FilterUserDto) {
     return this.usersService.findAll(filterUserDto);
   }
 
+  @Auth()
   @Post('user_profile')
   createUserProfile(
     @Body() createUserProfileDto: CreateUserProfileDto,
@@ -69,6 +82,7 @@ export class UsersController {
     );
   }
 
+  @Auth()
   @Patch('user_profile/:id')
   updateUserProfile(
     @Param('id') id: number,
@@ -77,16 +91,19 @@ export class UsersController {
     return this.userProfileService.updateUserProfile(id, updateUserProfileDto);
   }
 
+  @Auth()
   @Get(':id')
   findById(@Param('id') id: number) {
     return this.usersService.findById(id);
   }
 
+  @Auth()
   @Patch(':id')
   update(@Param('id') id: number, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(id, updateUserDto);
   }
 
+  @Auth()
   @Delete(':id')
   remove(@Param('id') id: number) {
     return this.usersService.remove(id);

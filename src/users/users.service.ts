@@ -103,8 +103,10 @@ export class UsersService extends BaseService<
 
   async getProfileUser(accountId: number) {
     const accountPromise = this.accountRepository.findOneBy({ id: accountId });
-    const userInforPromise =
-      this.userProfileService.findProfileByAccountId(accountId);
+    const userInforPromise = this.userProfileService.findProfileByAccountId(
+      accountId,
+      true,
+    );
 
     const [account, userInfor] = await Promise.all([
       accountPromise,
@@ -115,5 +117,13 @@ export class UsersService extends BaseService<
       ...account,
       ...userInfor,
     };
+  }
+
+  async checkEmailExist(email: string) {
+    const emailExist = await this.accountRepository.exist({
+      where: { email },
+    });
+
+    return !!emailExist;
   }
 }
