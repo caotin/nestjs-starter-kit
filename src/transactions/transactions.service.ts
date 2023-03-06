@@ -1,5 +1,5 @@
 import { BaseService, Pagination } from '@/common/base.service';
-import { ConflictException, Injectable, forwardRef } from '@nestjs/common';
+import { ConflictException, Inject, Injectable, forwardRef } from '@nestjs/common';
 import { TransactionEntity } from './entities/transaction';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
@@ -34,6 +34,7 @@ export class TransactionsService extends BaseService<
     private readonly balanceService: BalanceHistoriesService,
     private readonly transactionManager: TransactionManager,
     private readonly cardService: CardsService,
+    @Inject(forwardRef(() => StripeService))
     private readonly stripeService: StripeService
   ) {
     super(MessageName.USER, transactionRepository);
@@ -157,9 +158,10 @@ export class TransactionsService extends BaseService<
         transaction.type_transaction = TransactionType.DEPOSIT;
         transaction.notes = `Deposit to app with amount: ${amount}`;
         transaction.card = cardPaymentMethod;
-    
+        
+        await this.transactionRepository.save(transaction);
         const latestBalanceHistory = await this.balanceService.getBalanceLatest(account.id);
-        const balance = latestBalanceHistory.value + amount;
+        const balance =  parseInt(latestBalanceHistory.value) + amount;
         await this.balanceService.createWithTransaction(
           {
             account: account,
@@ -170,7 +172,6 @@ export class TransactionsService extends BaseService<
           entityManager
         );
         
-        await this.transactionRepository.save(transaction);
 
         paymenIntent = await this.stripeService.createPaymentIntent(amount, Currency.USD, cardPaymentMethod.token, token_stripe, transaction.id);
       }

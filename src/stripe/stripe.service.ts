@@ -16,6 +16,7 @@ export class StripeService {
 
   constructor(
     private readonly configService: ConfigService,
+    @Inject(forwardRef(() => TransactionsService))
     private readonly transactionService: TransactionsService,
   ) {
     this.stripe = new Stripe(
@@ -114,20 +115,24 @@ export class StripeService {
     );
   }
 
-  // async handlePaymentIntentSuccess(paymentIntent: Stripe.PaymentIntent) {
-  //   const { transactionId } = paymentIntent.metadata;
-  //   await this.transactionService.handleDepositComplete(parseInt(transactionId));
-  //   return {
-  //     message: "update transaction and balance history success"
-  //   }
-  // }
+  async handlePaymentIntentSuccess(paymentIntent: Stripe.PaymentIntent) {
+    const { transactionId } = paymentIntent.metadata;
+    await this.transactionService.handleDepositComplete(parseInt(transactionId));
+    return {
+      message: "update transaction and balance history success"
+    }
+  }
 
-  // async handlePaymentIntentFail(paymentIntent: Stripe.PaymentIntent) {
-  //   const { transactionId } = paymentIntent.metadata;
-  //   await this.transactionService.handleDepositFail(parseInt(transactionId));
+  async handlePaymentIntentFail(paymentIntent: Stripe.PaymentIntent) {
+    const { transactionId } = paymentIntent.metadata;
+    await this.transactionService.handleDepositFail(parseInt(transactionId));
 
-  //   return {
-  //     message: "update transaction and delete the record balance history success"
-  //   }
+    return {
+      message: "update transaction and delete the record balance history success"
+    }
+  }
+
+  // async constructEvent(sig: any, requestBody: any) {
+  //   return this.stripe.webhooks.constructEvent()
   // }
 }

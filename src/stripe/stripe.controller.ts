@@ -1,4 +1,5 @@
 import { Controller, Post, Req } from '@nestjs/common';
+import { Request } from 'express';
 import { StripeService } from './stripe.service';
 import Stripe from 'stripe';
 
@@ -9,19 +10,22 @@ export class StripeController {
   ) {}
 
   @Post()
-  async handleStripeWebhook(@Req() req) {
-    // const event = req.body;
-    // let result: any;
-    // const { id } = event.data.object;
-    // const paymenIntent: Stripe.PaymentIntent = await this.stripeService.getPaymentIntent(id);
-    // switch (event.type) {
-    //     case 'payment_intent.succeeded':
-    //       result = await this.stripeService.handlePaymentIntentSuccess(paymenIntent);
+  async handleStripeWebhook(@Req() req: Request) {
+    const event = req.body;
+    let result: any;
+    const { id } = event.data.object;
+    const paymenIntent: Stripe.PaymentIntent = await this.stripeService.getPaymentIntent(id);
+    switch (event.type) {
+        case 'payment_intent.succeeded':
+          result = await this.stripeService.handlePaymentIntentSuccess(paymenIntent);
+          break;
         
-    //     case 'payment_intent.canceled':
-    //       result = await this.stripeService.handlePaymentIntentFail(paymenIntent);
-    //     default:
-    //       return result;
-    // }
+        case 'payment_intent.canceled':
+          result = await this.stripeService.handlePaymentIntentFail(paymenIntent);
+          break;
+    }
+
+
+    return result;
   }
 }

@@ -4,7 +4,9 @@ import { StripeController } from './stripe.controller';
 import { TransactionsModule } from '@/transactions/transactions.module';
 
 @Module({
-  imports: [TransactionsModule],
+  imports: [
+    TransactionsModule
+  ],
   providers: [StripeService],
   controllers: [StripeController],
   exports: [StripeService],
