@@ -9,6 +9,8 @@ import { CreateCardDto } from '@/cards/dtos/create-card.dto';
 import { CreateBankPaymentMethodDto } from '@/bank-accounts/dtos/create-bank.dto';
 import { PaymentMethods } from '@enums/paymentMethods';
 import { TransactionsService } from '@/transactions/transactions.service';
+import { STRIPE_WEBHOOK_SECRET } from '@environments';
+import { Request } from 'express';
 
 @Injectable()
 export class StripeService {
@@ -125,7 +127,16 @@ export class StripeService {
     return this.transactionService.handleDepositFail(parseInt(transactionId));
   }
 
-  // async constructEvent(sig: any, requestBody: any) {
-  //   return this.stripe.webhooks.constructEvent()
-  // }
+  constructEvent(stripeSignature: string | string[], payload: string) {
+    let event: any;
+
+    try {
+      event = this.stripe.webhooks.constructEvent(  payload, stripeSignature, STRIPE_WEBHOOK_SECRET );
+    } catch (error) {
+      console.log(error.message);
+      throw new Error(`⚠️ Webhook signature verification failed.`);
+    }
+
+    return event;
+  }
 }
