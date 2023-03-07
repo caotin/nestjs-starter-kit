@@ -12,8 +12,8 @@ async function bootstrap() {
   app.useGlobalFilters(new HttpExceptionFilter());
 
   const config = new DocumentBuilder()
-    .setTitle('Osekkai API docs')
-    .setDescription('The Osekkai is refer matching friends')
+    .setTitle('Wallet API docs')
+    .setDescription('The Wallet is refer matching friends')
     .setVersion('1.0')
     .addBearerAuth()
     .build();
