@@ -31,13 +31,14 @@ export class UsersService extends BaseService<
       skip: filterUserDto.skip,
       order: filterUserDto.order,
     });
+
     return {
       data,
       total,
     };
   }
 
-  async findByUsername(username: string): Promise<UserEntity> {
-    return this.userRepository.findOneBy({ username });
+  async findByEmail(email: string): Promise<UserEntity> {
+    return this.userRepository.findOneBy({ email });
   }
 }

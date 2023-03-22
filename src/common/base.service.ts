@@ -31,7 +31,7 @@ export abstract class BaseService<T, K, V> {
     };
   }
 
-  async update(id: string | number, updateDto: V): Promise<T> {
+  async update(id: string | number, updateDto?: V | Partial<T>): Promise<T> {
     const toUpdate = await this.repository.findOne({ where: { id } as any });
     if (!toUpdate) {
       throw new NotFoundException(this.name as MessageName);

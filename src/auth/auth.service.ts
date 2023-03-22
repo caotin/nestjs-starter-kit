@@ -1,5 +1,6 @@
 import { JWT_TYPE } from '@/common/constants/jwt.type';
 import { MessageName } from '@/message';
+import { UserEntity } from '@/users/entites/user.entity';
 import { AccessDeniedException } from '@exceptions/access-denied.exception';
 import { ExistsException } from '@exceptions/exists.exeption';
 import { IncorrectException } from '@exceptions/incorrect.exception';
@@ -19,10 +20,8 @@ export class AuthService {
     private jwtService: JwtService,
     private configService: ConfigService,
   ) {}
-  async signUp(createUserDto: CreateUserDto): Promise<any> {
-    const userExists = await this.usersService.findByUsername(
-      createUserDto.username,
-    );
+  async signUp(createUserDto: CreateUserDto) {
+    const userExists = await this.usersService.findByEmail(createUserDto.email);
 
     if (userExists) {
       throw new ExistsException(MessageName.USER);
@@ -35,29 +34,27 @@ export class AuthService {
       ...createUserDto,
       password: hash,
     });
-    const tokens = await this.getTokens(newUser.id, newUser.username);
+    const tokens = await this.getTokens(newUser.id, newUser.email);
     await this.updateRefreshToken(newUser.id, tokens.refreshToken);
     return {
       ...tokens,
-      user: newUser,
+      ...newUser,
     };
   }
 
   async signIn(data: AuthDto) {
-    const user = await this.usersService.findByUsername(data.username);
+    const user = await this.usersService.findByEmail(data.email);
 
     if (!user) throw new NotFoundException(MessageName.USER);
 
     const passwordMatches = user.comparePassword(data.password);
     if (!passwordMatches) throw new IncorrectException(MessageName.USER);
 
-    const tokens = await this.getTokens(user.id, user.username);
-    delete user.password;
-    // await this.updateRefreshToken(user.id, tokens.refreshToken);
+    const tokens = await this.getTokens(user.id, user.email);
 
     return {
       ...tokens,
-      user,
+      ...user,
     };
   }
 
@@ -66,8 +63,6 @@ export class AuthService {
   }
 
   async refreshTokens(userId: number, refreshToken: string) {
-    console.log(userId);
-
     const user = await this.usersService.findById(userId);
 
     if (!user || !user.refreshToken) throw new AccessDeniedException();
@@ -78,7 +73,7 @@ export class AuthService {
     );
     if (!refreshTokenMatches) throw new AccessDeniedException();
 
-    const tokens = await this.getTokens(user.id, user.username);
+    const tokens = await this.getTokens(user.id, user.email);
 
     await this.updateRefreshToken(user.id, tokens.refreshToken);
 
@@ -96,22 +91,22 @@ export class AuthService {
     });
   }
 
-  async getTokens(userId: number, username: string) {
+  async getTokens(userId: number, email: string) {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
         {
           sub: userId,
-          username,
+          email,
         },
         {
           secret: this.configService.get<string>(JWT_TYPE.JWT_ACCESS_SECRET),
-          expiresIn: '15m',
+          expiresIn: '1d',
         },
       ),
       this.jwtService.signAsync(
         {
           sub: userId,
-          username,
+          email,
         },
         {
           secret: this.configService.get<string>(JWT_TYPE.JWT_REFRESH_SECRET),
