@@ -30,10 +30,10 @@ export class AuthController {
     this.authService.logout(user.id);
   }
 
-  @UseGuards(RefreshTokenGuard)
-  @Get('refresh')
-  refreshTokens(@User() user: UserEntity) {
-    const refreshToken = user.refreshToken;
-    return this.authService.refreshTokens(user.id, refreshToken);
-  }
+  // @UseGuards(RefreshTokenGuard)
+  // @Get('refresh')
+  // refreshTokens(@User() user: UserEntity) {
+  //   const refreshToken = user.refreshToken;
+  //   return this.authService.refreshTokens(user.id, refreshToken);
+  // }
 }

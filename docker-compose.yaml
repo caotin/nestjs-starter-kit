@@ -1,27 +1,39 @@
-version: '3.5'
+version: '3.8'
 
 services:
-  postgres:
-    container_name: osekkai_postgres_container
-    image: postgres
+  db:
+    image: mysql:8.0
+    restart: always
     environment:
-      TZ: ${TZ:-UTC}
-      PGTZ: ${TZ:-UTC}
-      POSTGRES_USER: ${DB_USER:-osekkai}
-      POSTGRES_PASSWORD: ${DB_PASS:-osekkai}
-      POSTGRES_DB: ${DB_NAME:-osekkai}
-      PGDATA: /data/postgres
-    volumes:
-      - ./data/postgres:/var/lib/postgresql/data
+      - TZ=UTC
+      - MYSQL_DATABASE=${DB_NAME}
+      - MYSQL_ROOT_PASSWORD=${DB_PASS}
     ports:
-      - "5432:5432"
-    networks:
-      - postgres
-    restart: unless-stopped
-
-networks:
-  postgres:
-    driver: bridge
-
+      - '${DB_PORT}:${DB_PORT}'
+    volumes:
+      - db:/var/lib/mysql
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+  # api:
+  #   container_name: freemerchandise-api
+  #   build:
+  #     context: ./
+  #     target: production
+  #   image: freemerchandise-api
+  #   depends_on:
+  #     - db
+  #   ports:
+  #     - ${APP_PORT}:${APP_PORT}
+  #   environment:
+  #     NODE_ENV: production
+  #     DB_HOST: ${DB_HOST}
+  #     DB_PORT: ${DB_PORT}
+  #     DB_USER: ${DB_USER}
+  #     DB_PASSWORD: ${DB_PASS}
+  #     DB_NAME: ${DB_NAME}
+  #   links:
+  #     - db
+  #   volumes:
+  #     - ./:/src
 volumes:
-    postgres:
+  db:
+    driver: local
