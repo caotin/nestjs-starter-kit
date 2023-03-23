@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { config } from '../ormconfig';
 import { PostsModule } from './posts/posts.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
+import { TagsModule } from './tags/tags.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
     UsersModule,
     AuthModule,
     PostsModule,
+    TagsModule,
   ],
   controllers: [AppController],
   providers: [

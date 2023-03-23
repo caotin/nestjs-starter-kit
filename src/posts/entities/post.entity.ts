@@ -1,7 +1,8 @@
 import { BaseEntity } from '@/common/base.entity';
+import { TagEntity } from '@/tags/entities/tag.entity';
 import { UserEntity } from '@/users/entites/user.entity';
 import { ApiProperty } from '@nestjs/swagger';
-import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
+import { Column, Entity, ManyToMany, ManyToOne, OneToMany } from 'typeorm';
 import { FavoriteUserEntity } from './favorite-user.entity';
 
 @Entity('post')
@@ -32,4 +33,8 @@ export class PostEntity extends BaseEntity {
 
   @ManyToOne(() => UserEntity, (user) => user.posts)
   owner: UserEntity;
+
+  @ApiProperty()
+  @ManyToMany(() => TagEntity, (tag) => tag.posts)
+  tags: TagEntity[];
 }

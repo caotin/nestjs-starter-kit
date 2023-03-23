@@ -9,5 +9,5 @@ export class FavoriteUserEntity extends BaseEntity {
   user: UserEntity;
 
   @ManyToOne(() => PostEntity, (post) => post.favorites)
-  post: UserEntity;
+  post: PostEntity;
 }
