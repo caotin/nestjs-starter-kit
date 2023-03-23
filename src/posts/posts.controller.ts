@@ -41,19 +41,29 @@ export class PostsController {
   }
 
   @Get(':id')
+  @ApiResponse({
+    type: PostEntity,
+  })
   findOne(@Param('id') id: string) {
     return this.postsService.findOne(id);
   }
 
   @Auth()
   @Patch(':id')
-  update(@Param() param: RemovePostDto, @Body() updatePostDto: UpdatePostDto) {
-    return this.postsService.update(param.id, updatePostDto);
+  @ApiResponse({
+    type: PostEntity,
+  })
+  update(
+    @Param() param: RemovePostDto,
+    @Body() updatePostDto: UpdatePostDto,
+    @User('id') userId: number,
+  ) {
+    return this.postsService.updatePost(+param.id, updatePostDto, userId);
   }
 
   @Auth()
   @Delete(':id')
-  remove(@Param() removeDto: RemovePostDto) {
-    return this.postsService.remove(removeDto.id);
+  remove(@Param() removeDto: RemovePostDto, @User('id') userId: number) {
+    return this.postsService.removePost(+removeDto.id, userId);
   }
 }

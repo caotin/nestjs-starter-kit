@@ -56,6 +56,27 @@ export class PostsService extends BaseService<
     }
   }
 
+  async updatePost(
+    id: number,
+    updateDto: UpdatePostDto,
+    userId: number,
+  ): Promise<PostEntity> {
+    const post = await this.postRepository.findOne({
+      where: { id, owner: { id: userId } },
+    });
+    if (!post) {
+      throw new NotFoundException(MessageName.POST);
+    }
+    const category = await this.categoryRepository.findOneBy({
+      id: updateDto.categoryId,
+    });
+    if (!category) {
+      throw new NotFoundException(MessageName.CATEGORY);
+    }
+    const updated = Object.assign(post, updateDto);
+    return this.postRepository.save(updated);
+  }
+
   async findAll(
     filterUserDto: FilterPostDto,
   ): Promise<PaginationBase<PostEntity>> {
@@ -77,7 +98,14 @@ export class PostsService extends BaseService<
     });
   }
 
-  async remove(id: string | number): Promise<RemoveResult> {
+  async removePost(id: number, userId: number): Promise<RemoveResult> {
+    const post = await this.postRepository.findOne({
+      where: { id, owner: { id: userId } },
+      select: ['id'],
+    });
+    if (!post) {
+      throw new NotFoundException(MessageName.POST);
+    }
     const removed = await this.postRepository.softDelete(id);
     return {
       removed: removed.affected,

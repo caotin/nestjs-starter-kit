@@ -5,6 +5,7 @@ import { Column, Entity, ManyToMany } from 'typeorm';
 
 @Entity('tag')
 export class TagEntity extends BaseEntity {
+  @ApiProperty()
   @Column()
   name: string;
 

@@ -8,6 +8,6 @@ export class categories1679556497057 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    // await queryRunner.query('');
+    await queryRunner.query('DELETE FROM `freemerchandise`.`category`');
   }
 }
