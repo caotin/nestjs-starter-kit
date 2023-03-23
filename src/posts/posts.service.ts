@@ -1,3 +1,4 @@
+import { CategoryEntity } from '@/categories/entities/category.entity';
 import {
   BaseService,
   PaginationBase,
@@ -6,6 +7,7 @@ import {
 import { slugify } from '@/common/utils';
 import { MessageName } from '@/message';
 import { UserEntity } from '@/users/entites/user.entity';
+import { NotFoundException } from '@exceptions/not-found.exception';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -23,20 +25,31 @@ export class PostsService extends BaseService<
   constructor(
     @InjectRepository(PostEntity)
     private postRepository: Repository<PostEntity>,
+    @InjectRepository(CategoryEntity)
+    private categoryRepository: Repository<CategoryEntity>,
   ) {
     super(MessageName.POST, postRepository);
   }
 
-  createPost(
-    createPostDto: CreatePostDto,
-    user: UserEntity,
-  ): Promise<PostEntity> {
+  async createPost(dto: CreatePostDto, user: UserEntity): Promise<PostEntity> {
     try {
-      const post = createPostDto as PostEntity;
-      post.slug = slugify(
-        createPostDto.title + '-' + Math.random().toString().substring(5, 10),
-      );
-      post.owner = user;
+      const category = await this.categoryRepository.findOneBy({
+        id: dto.categoryId,
+      });
+      if (!category) {
+        throw new NotFoundException(MessageName.CATEGORY);
+      }
+      const post = {
+        title: dto.title,
+        category: category,
+        description: dto.description,
+        owner: user,
+        region: dto.region,
+        slug: slugify(
+          dto.title + '-' + Math.random().toString().substring(5, 10),
+        ),
+        imageUrl: dto.imageUrl,
+      } as PostEntity;
       return this.postRepository.save(post);
     } catch (error) {
       throw new BadRequestException(error);

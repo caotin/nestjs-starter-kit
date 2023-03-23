@@ -1,4 +1,4 @@
-import { DataSourceOptions } from 'typeorm';
+import { DataSource, DataSourceOptions } from 'typeorm';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
@@ -12,4 +12,8 @@ export const config: DataSourceOptions = {
   synchronize: true,
   logging: false,
   entities: ['dist/**/*.entity.js'],
+  migrations: ['dist/migrations/*.js'],
+  migrationsTableName: 'migrations',
 };
+
+export default new DataSource(config);

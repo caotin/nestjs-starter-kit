@@ -1,3 +1,4 @@
+import { CategoryEntity } from '@/categories/entities/category.entity';
 import { BaseEntity } from '@/common/base.entity';
 import { TagEntity } from '@/tags/entities/tag.entity';
 import { UserEntity } from '@/users/entites/user.entity';
@@ -12,6 +13,10 @@ export class PostEntity extends BaseEntity {
   title: string;
 
   @ApiProperty()
+  @Column()
+  region: string;
+
+  @ApiProperty()
   @Column({ unique: true })
   slug: string;
 
@@ -24,10 +29,6 @@ export class PostEntity extends BaseEntity {
   imageUrl: string;
 
   @ApiProperty()
-  @Column('longtext')
-  content: string;
-
-  @ApiProperty()
   @OneToMany(() => FavoriteUserEntity, (user) => user.post)
   favorites: FavoriteUserEntity[];
 
@@ -37,4 +38,7 @@ export class PostEntity extends BaseEntity {
   @ApiProperty()
   @ManyToMany(() => TagEntity, (tag) => tag.posts)
   tags: TagEntity[];
+
+  @ManyToOne(() => CategoryEntity, (category) => category.posts)
+  category: CategoryEntity;
 }

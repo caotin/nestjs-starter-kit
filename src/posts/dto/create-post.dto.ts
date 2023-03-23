@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty } from 'class-validator';
+import { IsNotEmpty, IsNumber } from 'class-validator';
 
 export class CreatePostDto {
   @ApiProperty()
@@ -16,5 +16,10 @@ export class CreatePostDto {
 
   @ApiProperty()
   @IsNotEmpty()
-  content: string;
+  region: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsNumber()
+  categoryId: number;
 }

@@ -1,32 +1,32 @@
+import { PaginationBase } from '@/common/base.service';
+import { UserEntity } from '@/users/entites/user.entity';
+import { Auth } from '@decorators/auth.decorator';
+import { User } from '@decorators/user.decorator';
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
   Query,
 } from '@nestjs/common';
-import { PostsService } from './posts.service';
-import { CreatePostDto } from './dto/create-post.dto';
-import { UpdatePostDto } from './dto/update-post.dto';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Auth } from '@decorators/auth.decorator';
-import { Pagination, PaginationBase } from '@/common/base.service';
-import { PostEntity } from './entities/post.entity';
+import { CreatePostDto } from './dto/create-post.dto';
 import { FilterPostDto } from './dto/filter-post.dto';
-import { User } from '@decorators/user.decorator';
-import { UserEntity } from '@/users/entites/user.entity';
 import { RemovePostDto } from './dto/remove-post.dto';
+import { UpdatePostDto } from './dto/update-post.dto';
+import { PostEntity } from './entities/post.entity';
+import { PostsService } from './posts.service';
 
 @ApiBearerAuth()
 @ApiTags('posts')
-@Auth()
 @Controller('posts')
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
+  @Auth()
   @Post()
   create(@Body() createPostDto: CreatePostDto, @User() user: UserEntity) {
     return this.postsService.createPost(createPostDto, user);
@@ -45,11 +45,13 @@ export class PostsController {
     return this.postsService.findOne(id);
   }
 
+  @Auth()
   @Patch(':id')
   update(@Param() param: RemovePostDto, @Body() updatePostDto: UpdatePostDto) {
     return this.postsService.update(param.id, updatePostDto);
   }
 
+  @Auth()
   @Delete(':id')
   remove(@Param() removeDto: RemovePostDto) {
     return this.postsService.remove(removeDto.id);
