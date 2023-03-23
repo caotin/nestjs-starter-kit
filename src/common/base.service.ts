@@ -1,9 +1,18 @@
 import { MessageName } from '@/message';
 import { NotFoundException } from '@exceptions/not-found.exception';
+import { ApiProperty } from '@nestjs/swagger';
 import { Repository } from 'typeorm';
 
 export interface Pagination<T> {
   total: number;
+  data: T[];
+}
+
+export class PaginationBase<T> {
+  @ApiProperty()
+  total: number;
+
+  @ApiProperty({ isArray: true, type: 'object' })
   data: T[];
 }
 

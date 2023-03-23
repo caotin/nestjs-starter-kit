@@ -1,9 +1,9 @@
+import { APP_PORT } from '@environments';
+import { HttpExceptionFilter } from '@exceptions/exception.filter';
+import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
-import { APP_PORT } from '@environments';
-import { ValidationPipe } from '@nestjs/common';
-import { HttpExceptionFilter } from '@exceptions/exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
