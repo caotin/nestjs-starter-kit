@@ -24,6 +24,11 @@ export class UserEntity extends BaseEntity {
   @Column({ nullable: true, select: false })
   @ApiProperty()
   @Exclude()
+  verifyToken: string;
+
+  @Column({ nullable: true, select: false })
+  @ApiProperty()
+  @Exclude()
   refreshToken: string;
 
   @OneToMany(() => FavoriteUserEntity, (user) => user.user)

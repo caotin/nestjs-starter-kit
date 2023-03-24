@@ -1,7 +1,7 @@
 import { MessageName } from '@/message';
 import { NotFoundException } from '@exceptions/not-found.exception';
 import { ApiProperty } from '@nestjs/swagger';
-import { Repository } from 'typeorm';
+import { FindOneOptions, Repository } from 'typeorm';
 
 export interface Pagination<T> {
   total: number;
@@ -25,8 +25,8 @@ export abstract class BaseService<T, K, V> {
 
   abstract findAll(filterDto?): Promise<T[] | Pagination<T>>;
 
-  async findById(id: number): Promise<T> {
-    return await this.repository.findOneBy({ id } as any);
+  async findById(id: number, options?: FindOneOptions<T>): Promise<T> {
+    return await this.repository.findOneBy({ id, ...options } as any);
   }
 
   async create(createDto: K): Promise<T> {

@@ -2,7 +2,7 @@ import { BaseService, Pagination } from '@/common/base.service';
 import { MessageName } from '@/message';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindOneOptions, Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { FilterUserDto } from './dto/filter-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -38,7 +38,10 @@ export class UsersService extends BaseService<
     };
   }
 
-  async findByEmail(email: string): Promise<UserEntity> {
-    return this.userRepository.findOneBy({ email });
+  async findByEmail(
+    email: string,
+    options?: FindOneOptions<UserEntity>,
+  ): Promise<UserEntity> {
+    return this.userRepository.findOne({ where: { email }, ...options });
   }
 }

@@ -1,13 +1,14 @@
-import { UserEntity } from '@/users/entites/user.entity';
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { RefreshTokenGuard } from '@guards/refresh-token.guard';
 import { CreateUserDto } from '@/users/dto/create-user.dto';
-import { AuthService } from './auth.service';
-import { AuthDto } from './dto/auth.dto';
-import { Auth } from '@decorators/auth.decorator';
+import { UserEntity } from '@/users/entites/user.entity';
 import { User } from '@decorators/user.decorator';
+import { RefreshTokenGuard } from '@guards/refresh-token.guard';
+import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { AuthService } from './auth.service';
 import { AuthPayload } from './auth.type';
+import { AuthDto } from './dto/auth.dto';
+import { ResendDto } from './dto/resend.dto';
+import { VerifyDto } from './dto/verify.dto';
 
 @ApiBearerAuth()
 @ApiTags('auth')
@@ -18,10 +19,20 @@ export class AuthController {
   @Post('register')
   @ApiResponse({
     status: 200,
-    type: AuthPayload,
+    type: UserEntity,
   })
-  signup(@Body() createUserDto: CreateUserDto): Promise<AuthPayload> {
+  signup(@Body() createUserDto: CreateUserDto): Promise<UserEntity> {
     return this.authService.signUp(createUserDto);
+  }
+
+  @Get('resend')
+  resend(@Query() resendDto: ResendDto) {
+    return this.authService.resend(resendDto.email);
+  }
+
+  @Get('verify')
+  verify(@Query() verifyDto: VerifyDto) {
+    return this.authService.verify(verifyDto.token);
   }
 
   @Post('login')
@@ -32,12 +43,6 @@ export class AuthController {
   signin(@Body() data: AuthDto): Promise<AuthPayload> {
     return this.authService.signIn(data);
   }
-
-  // @Auth()
-  // @Get('logout')
-  // logout(@User() user: UserEntity) {
-  //   this.authService.logout(user.id);
-  // }
 
   @UseGuards(RefreshTokenGuard)
   @Get('refresh')
